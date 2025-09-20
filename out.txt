@@ -1,0 +1,2040 @@
+/main.cpp:
+#define SDL_MAIN_HANDLED
+
+#include "Game.hpp"
+#include "Timer.hpp"
+#include <SDL.h>
+#include <iostream>
+
+int main(int argc, char *argv[]) {
+    if (_Game::Instance().init("Gun Mayhem", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SDL_WINDOW_RESIZABLE)) {
+        std::cout << "Game init successful." << std::endl;
+
+        const int FPS = 60;
+        Timer timer = Timer(FPS);
+
+        while (_Game::Instance().isRunning()) {
+            timer.startFrame();
+
+            _Game::Instance().handleEvents();
+            _Game::Instance().update(timer.getDeltaTime());
+            _Game::Instance().render();
+
+            timer.endFrame();
+        }
+    } else {
+        std::cout << "Game init failed: " << SDL_GetError() << std::endl;
+        return -1;
+    }
+
+    return 0;
+}
+
+/include/Bullet.hpp:
+#pragma once
+
+#include "MovableObject.hpp"
+#include "Vector2D.hpp"
+#include <string>
+
+class Bullet : public MovableObject {
+public:
+    Bullet(const std::string& id,
+           const std::string& ownerId,
+           float x, float y,
+           float w, float h,
+           const SDL_Color& color,
+           const Vector2D& dir,
+           float speed); // seconds until bullet auto-despawns
+
+    GameObjectType getGameObjectType() const override { return GameObjectType::BULLET; }
+
+    void update(float deltaTime) override;
+
+    const std::string& getPlayerId() const { return ownerId; }
+    const Vector2D& getDirection() const { return direction; }
+    int getDamage() const { return 10; }
+    float getKnockback() const { return 500.0f; }
+    void setExpired(bool exp) { expired = exp; }
+
+    bool isExpired() const { return expired; }
+
+private:
+    std::string ownerId;   
+    Vector2D direction;    
+    float speed;           
+    bool expired;
+};
+
+
+/include/CollisionHandler.hpp:
+#pragma once
+
+#include "GameState.hpp"
+#include <SDL.h>
+#include <vector>
+
+// class CollisionHandler {
+// public:
+//     void checkCollisions(GameObjectMap &gameObjectsMap);
+// };
+
+/include/Game.hpp:
+#pragma once
+
+#include "GameStateMachine.hpp"
+#include <SDL.h>
+#include <SDL_ttf.h>
+#include <string>
+#include "utils.hpp"
+
+class Game {
+public:
+    bool init(const std::string &title, int x, int y, int windowFlags);
+
+    void update(float deltaTime);
+    void handleEvents();
+    void render();
+    void clean();
+    void quit();
+
+    TTF_Font *getFont() const { return font; }
+    SDL_Window *getWindow() const { return window; }
+    SDL_Renderer *getRenderer() const { return renderer; }
+    bool isRunning() { return running; }
+
+    GameStateMachine &getGameStateMachine() { return gameStateMachine; }
+
+    static Game &Instance() {
+        static Game instance;
+        return instance;
+    }
+
+    utils::ScreenSize getScreenSize() const { return screenSize; }
+
+private:
+    Game() {}
+    ~Game() {}
+    Game(const Game &) = delete;
+    Game &operator=(const Game &) = delete;
+
+    TTF_Font *font;
+    SDL_Window *window;
+    SDL_Renderer *renderer;
+    GameStateMachine gameStateMachine;
+
+    bool running;
+
+    utils::ScreenSize screenSize;
+};
+
+using _Game = Game;
+
+/include/GameObject.hpp:
+#pragma once
+
+#include "Vector2D.hpp"
+#include <SDL.h>
+#include <string>
+
+class GameObject {
+public:
+    enum GameObjectType {
+        PLAYER,
+        PLATFORM,
+        BULLET,
+        WEAPON,
+        UNKNOWN
+    };
+
+    GameObject(const std::string &id, float x, float y, float w, float h, const SDL_Color &color,
+               float scale = 1, double rotation = 0);
+
+    virtual void draw();
+    virtual void update(float deltaTime);
+    virtual void clean();
+
+    virtual GameObjectType getGameObjectType() const { return GameObjectType::UNKNOWN; }
+    std::string &getId() { return id; }
+    SDL_FRect &getColliderRect() { return colliderRect; }
+
+    virtual ~GameObject() {}
+protected:
+
+    std::string id;
+
+    SDL_FRect colliderRect;
+    SDL_FRect renderRect;
+
+    float scale;
+    double rotation;
+};
+
+/include/GameState.hpp:
+#pragma once
+
+#include "GameObject.hpp"
+#include <SDL.h>
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+class GameState {
+public:
+    virtual void update(float deltaTime) = 0;
+    virtual void render() = 0;
+
+    virtual bool onEnter() = 0;
+    virtual bool onExit() = 0;
+
+    virtual void onKeyDown(SDL_Event &event) = 0;
+    virtual void onKeyUp(SDL_Event &event) = 0;
+    virtual void onMouseButtonUp(SDL_Event &event) = 0;
+    virtual void onMouseButtonDown(SDL_Event &event) = 0;
+    virtual void onMouseMove(SDL_Event &event) = 0;
+
+    virtual const std::string getStateId() = 0;
+
+protected:
+    std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<GameObject>>> layeredGameObjectsMap;
+    std::vector<std::string> layerOrder;
+};
+
+
+/include/GameStateMachine.hpp:
+#pragma once
+
+#include "GameState.hpp"
+#include <vector>
+#include <SDL.h>
+
+class GameStateMachine {
+public:
+    GameStateMachine() {}
+    ~GameStateMachine() {}
+
+    void pushState(GameState *state);
+    void changeState(GameState *state);
+    void popState();
+
+    void update(float deltaTime);
+    void render();
+
+    void onKeyDown(SDL_Event &event);
+    void onKeyUp(SDL_Event &event);
+    void onMouseButtonUp(SDL_Event &event);
+    void onMouseButtonDown(SDL_Event &event);
+    void onMouseMove(SDL_Event &event);
+
+    std::vector<GameState *> &getGameStates() { return gameStates; }
+
+private:
+    std::vector<GameState *> gameStates;
+};
+
+/include/InputHandler.hpp:
+#pragma once
+
+#include "Vector2D.hpp"
+#include <SDL.h>
+#include <vector>
+
+enum MouseButtons {
+    LEFT = 0,
+    MIDDLE = 1,
+    RIGHT = 2
+};
+
+class InputHandler {
+public:
+    void init();
+    void update();
+    void clean();
+
+    bool isKeyDown(SDL_Scancode key);
+
+    bool getMouseButtonState(MouseButtons mouseButton);
+    Vector2D &getMousePos();
+
+    static InputHandler &Instance() {
+        static InputHandler instance;
+        return instance;
+    }
+
+private:
+    InputHandler() {}
+    ~InputHandler() {}
+    InputHandler(const InputHandler &) = delete;
+    InputHandler &operator=(const InputHandler &) = delete;
+
+    const Uint8 *keystates;
+
+    std::vector<bool> mouseButtonStates;
+    Vector2D mousePos;
+
+    void onKeyDown(SDL_Event &event);
+    void onKeyUp(SDL_Event &event);
+
+    void onMouseMove(SDL_Event &event);
+    void onMouseButtonDown(SDL_Event &event);
+    void onMouseButtonUp(SDL_Event &event);
+
+    void reset();
+};
+
+using _InputHandler = InputHandler;
+
+/include/MenuState.hpp:
+#pragma once
+
+#include "Game.hpp"
+#include "GameState.hpp"
+#include "GameStateMachine.hpp"
+#include <SDL.h>
+#include <iostream>
+#include <string>
+
+class MenuState : public GameState {
+public:
+    virtual void update(float deltaTime);
+    virtual void render();
+
+    virtual bool onEnter();
+    virtual bool onExit();
+
+    virtual void onKeyDown(SDL_Event &event);
+    virtual void onKeyUp(SDL_Event &event);
+    virtual void onMouseButtonUp(SDL_Event &event);
+    virtual void onMouseButtonDown(SDL_Event &event);
+    virtual void onMouseMove(SDL_Event &event);
+
+    virtual const std::string getStateId() { return "MENU"; }
+
+private:
+};
+
+/include/MovableObject.hpp:
+#pragma once
+
+#include "GameObject.hpp"
+
+class MovableObject : public GameObject {
+public:
+    enum FacingDirection {
+        LEFT,
+        RIGHT
+    };
+
+    MovableObject(const std::string &id, float x, float y, float w, float h, const SDL_Color &color,
+                  float scale = 1, double rotation = 0);
+                  
+    void draw() override;
+
+protected:
+    Vector2D velocity;
+    FacingDirection facingDirection;
+};
+
+/include/NonMovableObject.hpp:
+#include "GameObject.hpp"
+
+class NonMovableObject : public GameObject {
+public:
+    NonMovableObject(const std::string &id, float x, float y, float w, float h, const SDL_Color &color,
+                     float scale = 1, double rotation = 0);
+
+private:
+};
+
+/include/Pistol.hpp:
+#pragma once
+
+#include "RangedWeapon.hpp"
+
+class Pistol : public RangedWeapon {
+public:
+    Pistol(const std::string &id, const std::string &playerId, float x, float y, float w, float h, const SDL_Color &color, float scale = 1, double rotation = 0);
+
+    std::string getName() const override { return "Pistol"; }
+};
+
+/include/Platform.hpp:
+#pragma once
+
+#include "NonMovableObject.hpp"
+#include <SDL.h>
+
+class Platform : public NonMovableObject {
+public:
+    Platform(const std::string &id, float x, float y, float w, float h, const SDL_Color &color,
+             float scale = 1, double rotation = 0);
+
+    GameObjectType getGameObjectType() const { return GameObjectType::PLATFORM; }
+
+private:
+};
+
+/include/Player.hpp:
+#pragma once
+
+#include "MovableObject.hpp"
+#include "Vector2D.hpp"
+#include "Weapon.hpp"
+#include <SDL.h>
+
+class Player : public MovableObject {
+public:
+    struct MovementInput {
+        bool up = false;
+        bool left = false;
+        bool down = false;
+        bool right = false;
+        bool primaryFire = false;
+        bool secondaryFire = false;
+    };
+
+    Player(const std::string &id, float x, float y, float w, float h, const SDL_Color &color, float scale = 1, double rotation = 0);
+    void init();
+
+    GameObjectType getGameObjectType() const { return GameObjectType::PLAYER; }
+    void setMovement(Player::MovementInput &movInput);
+
+    void draw() override;
+    void update(float deltaTime) override;
+
+    // bool onCollisionWithPlatform(SDL_FRect &platformColliderRect);
+    // void onCollisionWithBullet(float damage, float knockback, FacingDirection bulletFacingDirection);
+    // void clean();
+
+    // Weapon *getWeapon() { return weapon; }
+    void setPrimaryWeapon(Weapon *pw);
+    void handleWeapon();
+    float getHealth() { return health; }
+    float getLives() { return lives; }
+    FacingDirection getFacingDirection() const { return facingDirection; }
+
+    void respawn();
+
+    void onCollisionWithPlatform(const SDL_FRect &platformColliderRect);
+    void onCollisionWithBullet(float damage, float knockback, FacingDirection bulletFacingDirection);
+
+private:
+    void handleXMovement();
+    void handleJump();
+    void applyGravity(float deltaTime);
+    void updatePosition(float deltaTime);
+
+    Player::MovementInput movementInput;
+
+    Vector2D knockbackVelocity;
+
+    float gravity = 2500;
+    float strongGravity = 7500; // for smaller jumps when not holding up
+    float maxFallSpeed = 1000;
+
+    float jumpSpeed = 800;
+    int jumpCount;
+    int maxJumps = 2;
+    bool wasJumping; // prev movementInput.up
+    Vector2D prevPos;
+    bool onGround;
+
+    float xSpeed = 300;
+    FacingDirection facingDirection;
+
+    int lives;
+    int maxLives = 10;
+    int health;
+    int maxHealth = 100;
+
+    Weapon *primaryWeapon = nullptr;
+    Weapon *secondaryWeapon = nullptr;
+};
+
+/include/PlayState.hpp:
+#pragma once
+
+#include "Game.hpp"
+#include "GameState.hpp"
+#include "GameStateMachine.hpp"
+#include "utils.hpp"
+#include <SDL.h>
+#include <iostream>
+#include <string>
+
+class PlayState : public GameState {
+public:
+    virtual void update(float deltaTime);
+    virtual void render();
+
+    virtual bool onEnter();
+    virtual bool onExit();
+
+    virtual void onKeyDown(SDL_Event &event);
+    virtual void onKeyUp(SDL_Event &event);
+    virtual void onMouseButtonUp(SDL_Event &event);
+    virtual void onMouseButtonDown(SDL_Event &event);
+    virtual void onMouseMove(SDL_Event &event);
+
+    virtual const std::string getStateId() { return "PLAY"; }
+
+private:
+    std::unordered_map<std::string, utils::PlayerControls> playerControls;
+    std::vector<std::string> sortedPlatformsId;
+
+    void updatePlayerInputs();
+    void updateGameObjects(float deltaTime);
+    void handleCollisions();
+    void spawnBullet(const std::string &playerId, Weapon::FireMode mode);
+};
+
+/include/RangedWeapon.hpp:
+#pragma once
+
+#include "Weapon.hpp"
+#include <functional>
+
+class RangedWeapon : public Weapon {
+public:
+    RangedWeapon(const std::string &id, const std::string &playerId, float x, float y, float w, float h, const SDL_Color &color, float scale = 1, double rotation = 0);
+    void fire(FireMode mode) override;
+    void update(float deltaTime) override;
+
+    using SpawnBulletFn = std::function<void(const std::string &playerId, FireMode)>;
+    void setSpawnBulletCallback(SpawnBulletFn cb) { spawnBullet = cb; }
+
+    void reload();
+    
+    bool getIsReloading() const { return isReloading; }
+
+protected:
+    SpawnBulletFn spawnBullet;
+
+    bool isReloading;
+    float reloadTime;
+    float reloadTimer;
+};
+
+/include/TextureManager.hpp:
+#pragma once
+
+#include <SDL.h>
+#include <map>
+#include <string>
+
+class TextureManager {
+public:
+    bool createTextureFromRect(const std::string &id, const SDL_FRect &rect, const SDL_Color &color);
+    void draw(const std::string &id, SDL_FRect &rect, double angle , SDL_RendererFlip flip = SDL_FLIP_NONE, const SDL_FPoint *center = nullptr);
+    void removeFromTextureMap(const std::string &id);
+
+    static TextureManager &Instance() {
+        static TextureManager instance;
+        return instance;
+    }
+
+private:
+    TextureManager() {}
+    ~TextureManager() {}
+    TextureManager(const TextureManager &) = delete;
+    TextureManager &operator=(const TextureManager &) = delete;
+
+    std::map<std::string, SDL_Texture *> textureMap;
+};
+
+typedef TextureManager _TextureManager;
+// typedef std::map<std::string, SDL_Texture *>::iterator textureMapIterator;
+
+/include/Timer.hpp:
+#pragma once
+
+#include "SDL.h"
+
+class Timer {
+public:
+    Timer(int targetFPS);
+    ~Timer() {}
+
+    void startFrame();
+    void endFrame() const;
+    float getDeltaTime() const;
+    float getFPS() const;
+
+private:
+    int targetFPS;
+    int frameDelay;
+    int frameStart;
+    float deltaTime;
+    int lastFrameTime;
+};
+
+/include/utils.hpp:
+#pragma once
+
+#include "Pistol.hpp"
+#include "Platform.hpp"
+#include "Player.hpp"
+#include "Weapon.hpp"
+#include <SDL.h>
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+namespace utils {
+    struct MapData {
+        std::vector<std::unique_ptr<Platform>> platforms;
+        std::vector<SDL_Point> spawnPoints;
+        std::string mapName;
+    };
+    MapData loadRandomMapFromJson(const std::string &filename);
+
+    struct PlayerData {
+        std::vector<std::unique_ptr<Player>> players;
+    };
+    PlayerData loadPlayersFromJson(const std::string &filename, const std::vector<SDL_Point> &spawnPoints);
+
+    struct ScreenSize {
+        int width;
+        int height;
+    };
+    ScreenSize loadScreenSizeFromJson(const std::string &filename);
+
+    struct PlayerControls {
+        SDL_Scancode up;
+        SDL_Scancode down;
+        SDL_Scancode left;
+        SDL_Scancode right;
+        SDL_Scancode primaryShoot;
+        SDL_Scancode secondaryShoot;
+    };
+    std::unordered_map<std::string, utils::PlayerControls> loadPlayerControls(const std::string &filePath);
+
+    std::unique_ptr<Weapon> createWeapon(const std::string &type, const std::string &playerId, float x, float y,
+                                         float scale = 1, double rotation = 0);
+}
+
+/include/Vector2D.hpp:
+#pragma once
+
+class Vector2D {
+public:
+    Vector2D() : x(0), y(0) {};
+    Vector2D(float X, float Y) : x(X), y(Y) {}
+    ~Vector2D() {}
+
+    // float x const { return x; }
+    // float y const { return y; }
+    // void setX(float X);
+    // void setY(float Y);
+    // void setXY(float X,float Y);
+    float length() const;
+    void normalise();
+
+    Vector2D operator+(const Vector2D &v2) const;
+    Vector2D &operator+=(const Vector2D &v2);
+    Vector2D operator-(const Vector2D &v2) const;
+    Vector2D &operator-=(const Vector2D &v2);
+    Vector2D operator*(float scalar);
+    Vector2D &operator*=(float scalar);
+    Vector2D operator/(float scalar);
+    Vector2D &operator/=(float scalar);
+
+    float x, y;
+
+private:
+};
+
+
+/include/Weapon.hpp:
+#pragma once
+
+#include "MovableObject.hpp"
+#include "Vector2D.hpp"
+
+class Weapon : public MovableObject {
+public:
+    enum FireMode {
+        PRIMARY,
+        SECONDARY
+    };
+
+    Weapon(const std::string &id, const std::string &playerId, float x, float y, float w, float h, const SDL_Color &color, float scale = 1, double rotation = 0);
+
+    void update(float deltaTime) override;
+    virtual std::string getName() const = 0;
+
+    virtual void fire(FireMode mode) = 0;
+    void reload();
+
+    void setPlayerPosition(float x, float y);
+    void setPlayerFacingDirection(FacingDirection dir) { playerFacingDirection = dir; }
+
+    int getAmmo() const { return ammo; }
+    int getMaxAmmo() const { return maxAmmo; }
+
+protected:
+    std::string playerId;
+    int ammo;
+    int maxAmmo;
+    float primaryFireCooldown;
+    float timeSinceLastPrimaryFire;
+    float secondaryFireCooldown;
+    float timeSinceLastSecondaryFire;
+
+    bool isPrimaryWeapon;
+
+    Vector2D playerPosition;
+    FacingDirection playerFacingDirection;
+};
+
+/src/Bullet.cpp:
+#include "Bullet.hpp"
+#include <iostream>
+
+Bullet::Bullet(const std::string &id,
+               const std::string &ownerId,
+               float x, float y,
+               float w, float h,
+               const SDL_Color &color,
+               const Vector2D &dir,
+               float speed)
+    : MovableObject(id, x, y, w, h, color),
+      ownerId(ownerId),
+      direction(dir),
+      speed(speed),
+      expired(false) {
+    // initial velocity = direction * speed
+    direction.normalise();
+    velocity = {direction.x * speed, direction.y * speed};
+}
+
+void Bullet::update(float deltaTime) {
+    // move bullet
+    colliderRect.x += velocity.x * deltaTime;
+    colliderRect.y += velocity.y * deltaTime;
+    renderRect.x = colliderRect.x;
+    renderRect.y = colliderRect.y;
+
+    // track age
+    // age += deltaTime;
+    // if (age >= lifetime) {
+    //     expired = true;
+    // }
+
+    // (optional) check if bullet leaves screen bounds
+    if (colliderRect.x < -50 || colliderRect.x > 1280 + 50 ||
+        colliderRect.y < -50 || colliderRect.y > 720 + 50) {
+        expired = true;
+    }
+}
+
+
+/src/CollisionHandler.cpp:
+#include "CollisionHandler.hpp"
+#include "GameObject.hpp"
+#include "Platform.hpp"
+#include "Player.hpp"
+#include <iostream>
+
+// void CollisionHandler::checkCollisions(GameObjectMap &gameObjectsMap) {
+//     for (auto &gameObjectPair : gameObjectsMap) {
+//         if (gameObjectPair.second->getObjectType() == GameObjectType::PLAYER) {
+//             Player *player = dynamic_cast<Player *>(gameObjectPair.second);
+
+//             for (auto &gameObjectPair2 : gameObjectsMap) {
+//                 if (gameObjectPair2.second->getObjectType() == GameObjectType::PLATFORM) {
+//                     GameObject *platform = gameObjectPair2.second;
+
+//                     // TODO: replace this with raycast; update: raycast doesnt help much its the same logic again.
+//                     // platforms collider can just be a horizontal line
+//                     if (SDL_HasIntersectionF(&player->getColliderRectRef(), &platform->getColliderRectRef())) {
+//                         if (player->onCollisionWithPlatform(platform->getColliderRectRef())) {
+//                             break;
+//                         }
+//                     }
+//                 }
+
+//                 // if (gameObjectPair2.second->getObjectType() == GameObjectType::BULLET) {
+//                 //     Bullet *bullet = dynamic_cast<Bullet *>(gameObjectPair2.second);
+//                 //     if (player->getId() != bullet->getPlayerId()) {
+//                 //         if (SDL_HasIntersectionF(&player->getColliderRectRef(), &bullet->getColliderRectRef())) {
+//                 //             player->onCollisionWithBullet(bullet->getDamage(), bullet->getKnockback(), bullet->getFacingDirection());
+//                 //         }
+//                 //     }
+//                 // }
+//             }
+//         }
+//     }
+// }
+
+/src/Game.cpp:
+#include "Game.hpp"
+#include "InputHandler.hpp"
+#include "PlayState.hpp"
+#include "utils.hpp"
+#include <iostream>
+
+bool Game::init(const std::string &title, int x, int y, int windowFlags) {
+    screenSize = utils::loadScreenSizeFromJson("../assets/gameConfig.json");
+
+    if (SDL_Init(SDL_INIT_EVERYTHING) == 0) {
+        std::cout << "SDL initialized." << std::endl;
+    } else {
+        std::cout << "SDL initialization failed." << std::endl;
+        return false;
+    }
+
+    if (TTF_Init() == 0) {
+        std::cout << "TTF initialized." << std::endl;
+        font = TTF_OpenFont("../assets/fonts/Roboto-Italic.ttf", 10);
+        if (!font) {
+            std::cout << "Font load error: " << TTF_GetError() << std::endl;
+        }
+    } else {
+        std::cout << "TTF initialization failed: " << TTF_GetError() << std::endl;
+        return false;
+    }
+
+    window = SDL_CreateWindow(title.c_str(), x, y, screenSize.width, screenSize.height, windowFlags);
+    if (window != 0) {
+        std::cout << "Window created." << std::endl;
+        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+    } else {
+        std::cout << "Window creation failed." << std::endl;
+        return false;
+    }
+
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (renderer != nullptr) {
+        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+        SDL_RenderSetLogicalSize(renderer, screenSize.width, screenSize.height);
+        std::cout << "Renderer created." << std::endl;
+    } else {
+        std::cout << "Renderer creation failed" << std::endl;
+        return false;
+    }
+
+    _InputHandler::Instance().init();
+
+    gameStateMachine = GameStateMachine();
+    gameStateMachine.pushState(new PlayState());
+
+    running = true;
+    return true;
+}
+
+void Game::render() {
+    SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
+    SDL_RenderClear(renderer);
+
+    gameStateMachine.render();
+    SDL_RenderPresent(renderer);
+}
+
+void Game::update(float deltaTime) {
+    // TODO: check this deltaTime limit
+    if (deltaTime > 0.1f)
+        deltaTime = 0.1f;
+    gameStateMachine.update(deltaTime);
+}
+
+void Game::handleEvents() {
+    _InputHandler::Instance().update();
+}
+
+void Game::clean() {
+    SDL_DestroyWindow(window);
+    SDL_DestroyRenderer(renderer);
+    TTF_Quit();
+    SDL_Quit();
+}
+
+void Game::quit() {
+    running = false;
+    while (gameStateMachine.getGameStates().size() > 0) {
+        gameStateMachine.popState();
+    }
+    clean();
+}
+
+/src/GameObject.cpp:
+#include "GameObject.hpp"
+#include "Game.hpp"
+#include "TextureManager.hpp"
+#include <iostream>
+
+GameObject::GameObject(const std::string &id, float x, float y, float w, float h, const SDL_Color &color,
+                       float scale, double rotation)
+    : id(id),
+      scale(scale),
+      rotation(rotation),
+      colliderRect({x, y, w, h}),
+      renderRect(colliderRect) {
+
+    _TextureManager::Instance().createTextureFromRect(id, renderRect, color);
+}
+
+void GameObject::update(float deltaTime) {
+}
+
+void GameObject::draw() {
+    _TextureManager::Instance().draw(id, renderRect, rotation);
+}
+
+void GameObject::clean() {
+    _TextureManager::Instance().removeFromTextureMap(id);
+}
+
+/src/GameStateMachine.cpp:
+#include "GameStateMachine.hpp"
+#include <iostream>
+
+void GameStateMachine::pushState(GameState *state) {
+    gameStates.push_back(state);
+    gameStates.back()->onEnter();
+}
+
+void GameStateMachine::changeState(GameState *state) {
+    if (!gameStates.empty()) {
+        if (gameStates.back()->getStateId() == state->getStateId()) {
+            return;
+        }
+    }
+
+    gameStates.push_back(state);
+
+    if (!gameStates.empty()) {
+        if (gameStates.back()->onExit()) {
+            gameStates.erase(gameStates.end() - 2);
+        }
+    }
+
+    gameStates.back()->onEnter();
+}
+
+void GameStateMachine::popState() {
+    if (!gameStates.empty()) {
+        if (gameStates.back()->onExit()) {
+            gameStates.erase(gameStates.end() - 1);
+        }
+    }
+}
+
+void GameStateMachine::update(float deltaTime) {
+    if (!gameStates.empty()) {
+        gameStates.back()->update(deltaTime);
+    }
+}
+
+void GameStateMachine::render() {
+    if (!gameStates.empty()) {
+        gameStates.back()->render();
+    }
+}
+
+void GameStateMachine::onKeyDown(SDL_Event &event) {
+    if (!gameStates.empty()) {
+        gameStates.back()->onKeyDown(event);
+    }
+}
+
+void GameStateMachine::onKeyUp(SDL_Event &event) {
+    if (!gameStates.empty()) {
+        gameStates.back()->onKeyUp(event);
+    }
+}
+
+void GameStateMachine::onMouseButtonDown(SDL_Event &event) {
+    if (!gameStates.empty()) {
+        gameStates.back()->onMouseButtonDown(event);
+    }
+}
+
+void GameStateMachine::onMouseButtonUp(SDL_Event &event) {
+    if (!gameStates.empty()) {
+        gameStates.back()->onMouseButtonUp(event);
+    }
+}
+
+void GameStateMachine::onMouseMove(SDL_Event &event) {
+    if (!gameStates.empty()) {
+        gameStates.back()->onMouseMove(event);
+    }
+}
+
+/src/InputHandler.cpp:
+#include "InputHandler.hpp"
+#include "Game.hpp"
+#include <iostream>
+
+void InputHandler::init() {
+    mouseButtonStates = {false, false, false};
+    mousePos = {0, 0};
+}
+
+void InputHandler::update() {
+    keystates = SDL_GetKeyboardState(nullptr);
+
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+        case SDL_QUIT:
+            _Game::Instance().quit();
+            break;
+
+        case SDL_KEYDOWN:
+            onKeyDown(event);
+            break;
+        case SDL_KEYUP:
+            onKeyUp(event);
+            break;
+
+        case SDL_MOUSEMOTION:
+            onMouseMove(event);
+            break;
+        case SDL_MOUSEBUTTONDOWN:
+            onMouseButtonDown(event);
+            break;
+        case SDL_MOUSEBUTTONUP:
+            onMouseButtonUp(event);
+            break;
+
+        default:
+            break;
+        }
+    }
+}
+
+void InputHandler::onKeyDown(SDL_Event &event) {
+    // std::cout << "Key Pressed: " << SDL_GetKeyName(event.key.keysym.sym) << std::endl;
+    _Game::Instance().getGameStateMachine().onKeyDown(event);
+}
+
+void InputHandler::onKeyUp(SDL_Event &event) {
+    // std::cout << "Key Released: " << SDL_GetKeyName(event.key.keysym.sym) << std::endl;
+    _Game::Instance().getGameStateMachine().onKeyUp(event);
+}
+
+bool InputHandler::isKeyDown(SDL_Scancode key) {
+    if (keystates != 0) {
+        if (keystates[key] == 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    return false;
+}
+
+void InputHandler::onMouseMove(SDL_Event &event) {
+    // std::cout << "Mouse position = x: " << mousePos->x << ", y:" << mousePos->y << std::endl;
+    mousePos.x = event.motion.x;
+    mousePos.y = event.motion.y;
+    _Game::Instance().getGameStateMachine().onMouseMove(event);
+}
+
+void InputHandler::onMouseButtonDown(SDL_Event &event) {
+    if (event.button.button == SDL_BUTTON_LEFT) {
+        // std::cout << "Left Mouse Button Pressed." << std::endl;
+        mouseButtonStates[LEFT] = true;
+    } else if (event.button.button == SDL_BUTTON_MIDDLE) {
+        // std::cout << "Middle Mouse Button Pressed." << std::endl;
+        mouseButtonStates[MIDDLE] = true;
+    } else if (event.button.button == SDL_BUTTON_RIGHT) {
+        // std::cout << "Right Mouse Button Pressed." << std::endl;
+        mouseButtonStates[RIGHT] = true;
+    }
+    _Game::Instance().getGameStateMachine().onMouseButtonDown(event);
+}
+
+void InputHandler::onMouseButtonUp(SDL_Event &event) {
+    if (event.button.button == SDL_BUTTON_LEFT) {
+        // std::cout << "Left Mouse Button Released." << std::endl;
+        mouseButtonStates[LEFT] = false;
+    } else if (event.button.button == SDL_BUTTON_MIDDLE) {
+        // std::cout << "Middle Mouse Button Released." << std::endl;
+        mouseButtonStates[MIDDLE] = false;
+    } else if (event.button.button == SDL_BUTTON_RIGHT) {
+        // std::cout << "Right Mouse Button Released." << std::endl;
+        mouseButtonStates[RIGHT] = false;
+    }
+    _Game::Instance().getGameStateMachine().onMouseButtonUp(event);
+}
+
+bool InputHandler::getMouseButtonState(MouseButtons mouseButton) {
+    return mouseButtonStates[mouseButton];
+}
+
+Vector2D &InputHandler::getMousePos() {
+    return mousePos;
+}
+
+void InputHandler::reset() {
+    mouseButtonStates = {false, false, false};
+}
+
+void InputHandler::clean() {
+}
+
+/src/MenuState.cpp:
+#include "MenuState.hpp"
+
+bool MenuState::onEnter() {
+    std::cout << "entering MenuState..." << std::endl;
+    return true;
+}
+
+bool MenuState::onExit() {
+    std::cout << "exiting MenuState..." << std::endl;
+    return true;
+}
+
+void MenuState::update(float deltaTime) {
+}
+
+void MenuState::render() {
+}
+
+void MenuState::onKeyDown(SDL_Event &event) {
+}
+
+void MenuState::onKeyUp(SDL_Event &event) {
+}
+
+void MenuState::onMouseButtonDown(SDL_Event &event) {
+}
+
+void MenuState::onMouseButtonUp(SDL_Event &event) {
+}
+
+void MenuState::onMouseMove(SDL_Event &event) {
+}
+
+
+/src/MovableObject.cpp:
+#include "MovableObject.hpp"
+#include "TextureManager.hpp"
+
+MovableObject::MovableObject(const std::string &id, float x, float y, float w, float h, const SDL_Color &color,
+                             float scale, double rotation)
+    : GameObject(id, x, y, w, h, color, scale, rotation),
+      velocity(0, 0),
+      facingDirection(FacingDirection::LEFT) {}
+
+void MovableObject::draw() {
+    SDL_RendererFlip flip = (facingDirection == FacingDirection::LEFT) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+    _TextureManager::Instance().draw(id, renderRect, rotation, flip);
+}
+
+/src/NonMovableObject.cpp:
+#include "NonMovableObject.hpp"
+
+NonMovableObject::NonMovableObject(const std::string &id, float x, float y, float w, float h, const SDL_Color &color,
+                                   float scale, double rotation)
+    : GameObject(id, x, y, w, h, color, scale, rotation) {}
+
+
+/src/Pistol.cpp:
+#include "Pistol.hpp"
+
+Pistol::Pistol(const std::string &id, const std::string &playerId, float x, float y, float w, float h, const SDL_Color &color,
+               float scale, double rotation)
+    : RangedWeapon(id, playerId, x, y, w, h, color, scale, rotation) {
+    maxAmmo = 12;
+    ammo = maxAmmo;
+    primaryFireCooldown = 0.5f;
+    timeSinceLastPrimaryFire = primaryFireCooldown;
+    secondaryFireCooldown = 0.5f;
+    timeSinceLastSecondaryFire = secondaryFireCooldown;
+    isPrimaryWeapon = true;
+    reloadTime = 1.5f;
+    reloadTimer = 0.0f;
+}
+
+/src/Platform.cpp:
+#include "Platform.hpp"
+
+Platform::Platform(const std::string &id, float x, float y, float w, float h, const SDL_Color &color, float scale, double rotation)
+    : NonMovableObject(id, x, y, w, h, color, scale, rotation) {}
+
+/src/Player.cpp:
+#include "Player.hpp"
+#include "Game.hpp"
+#include "GameObject.hpp"
+#include "TextureManager.hpp"
+#include <cstdlib>
+#include <iostream>
+#include "RangedWeapon.hpp"
+
+Player::Player(const std::string &id, float x, float y, float w, float h, const SDL_Color &color,
+               float scale, double rotation)
+    : MovableObject(id, x, y, w, h, color, scale, rotation),
+      prevPos(x, y) {
+
+    init();
+    // giveWeapon();
+}
+
+void Player::init() {
+    knockbackVelocity = {0, 0};
+    jumpCount = 1;
+    wasJumping = true;
+    onGround = false;
+    lives = maxLives;
+    health = maxHealth;
+    facingDirection = FacingDirection::LEFT;
+}
+
+void Player::setMovement(Player::MovementInput &movementInput) {
+    this->movementInput = movementInput;
+}
+
+// void Player::draw() {
+//     SDL_RendererFlip flip = (facingDirection == FacingDirection::LEFT) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+//     _TextureManager::Instance().draw(id, renderRect, rotation, flip);
+
+//     std::string info = "HP: " + std::to_string((int)getHealth()) +
+//                        " | Lives: " + std::to_string((int)getLives());
+//     SDL_Surface *fontSurface = TTF_RenderText_Blended(_Game::Instance().getFont(), info.c_str(), {255, 255, 255, 255});
+//     SDL_Texture *fontTexture = SDL_CreateTextureFromSurface(_Game::Instance().getRenderer(), fontSurface);
+
+//     SDL_FRect dstRect = {colliderRect.x, colliderRect.y - 20, (float)fontSurface->w, (float)fontSurface->h};
+//     SDL_RenderCopyF(Game::Instance().getRenderer(), fontTexture, nullptr, &dstRect);
+
+//     SDL_FreeSurface(fontSurface);
+//     SDL_DestroyTexture(fontTexture);
+// }
+
+void Player::draw() {
+    SDL_RendererFlip flip = (facingDirection == FacingDirection::LEFT) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+    _TextureManager::Instance().draw(id, renderRect, rotation, flip);
+
+    std::string weaponName = primaryWeapon ? primaryWeapon->getName() : "None";
+    int ammo = primaryWeapon ? primaryWeapon->getAmmo() : 0;
+    int maxAmmo = primaryWeapon ? primaryWeapon->getMaxAmmo() : 0;
+    bool reloading = false;
+    if (primaryWeapon) {
+        if (auto rw = dynamic_cast<RangedWeapon*>(primaryWeapon)) {
+            reloading = rw->getIsReloading();
+        }
+    }
+
+    std::vector<std::string> lines = {
+        "HP: " + std::to_string(health) + "/" + std::to_string(maxHealth),
+        "Lives: " + std::to_string(lives) + "/" + std::to_string(maxLives),
+        "Weapon: " + weaponName,
+        "Ammo: " + std::to_string(ammo) + "/" + std::to_string(maxAmmo) + (reloading ? " (Reloading)" : "")
+    };
+
+    int lineHeight = 18; // or use TTF_FontLineSkip(font)
+    int yOffset = -80;
+
+    for (const auto& line : lines) {
+        SDL_Surface* fontSurface = TTF_RenderText_Blended(_Game::Instance().getFont(), line.c_str(), {255, 255, 255, 255});
+        SDL_Texture* fontTexture = SDL_CreateTextureFromSurface(_Game::Instance().getRenderer(), fontSurface);
+
+        SDL_FRect dstRect = {colliderRect.x, colliderRect.y + yOffset, (float)fontSurface->w, (float)fontSurface->h};
+        SDL_RenderCopyF(_Game::Instance().getRenderer(), fontTexture, nullptr, &dstRect);
+
+        SDL_FreeSurface(fontSurface);
+        SDL_DestroyTexture(fontTexture);
+
+        yOffset += lineHeight;
+    }
+}
+
+void Player::update(float deltaTime) {
+    handleXMovement();
+
+    handleJump();
+
+
+    // TODO: this will make the player gravity weaker even if the player is releases and presses up button again
+    // before reaching top of the jump; decide later if this can be a feature or should be removed
+    applyGravity(deltaTime);
+
+    if (colliderRect.y > 640 + 50) {
+        respawn();
+    }
+
+    updatePosition(deltaTime);
+    handleWeapon();
+}
+
+void Player::handleWeapon() {
+    if (primaryWeapon) {
+        primaryWeapon->setPlayerPosition(colliderRect.x, colliderRect.y);
+        primaryWeapon->setPlayerFacingDirection(facingDirection);
+    }
+    if (secondaryWeapon) {
+        secondaryWeapon->setPlayerPosition(colliderRect.x, colliderRect.y);
+        secondaryWeapon->setPlayerFacingDirection(facingDirection);
+    }
+
+    if (movementInput.primaryFire) {
+        if (secondaryWeapon) {
+            secondaryWeapon->fire(Weapon::PRIMARY);
+            // if (secondaryWeapon->isOutOfAmmo()) {
+            //     secondaryWeapon = nullptr; // fallback to primary
+            // }
+        } else if (primaryWeapon) {
+            primaryWeapon->fire(Weapon::PRIMARY);
+        }
+    }
+    if (movementInput.secondaryFire) {
+        if (secondaryWeapon) {
+            secondaryWeapon->fire(Weapon::SECONDARY);
+            // if (secondaryWeapon->isOutOfAmmo()) {
+            //     secondaryWeapon = nullptr;
+            // }
+        } else if (primaryWeapon) {
+            primaryWeapon->fire(Weapon::SECONDARY);
+        }
+    }
+}
+
+void Player::handleXMovement() {
+    velocity.x = 0;
+    if (movementInput.left) {
+        velocity.x = -xSpeed;
+        facingDirection = FacingDirection::LEFT;
+    }
+    if (movementInput.right) {
+        velocity.x = xSpeed;
+        facingDirection = FacingDirection::RIGHT;
+    }
+}
+
+void Player::handleJump() {
+    if (movementInput.up && !wasJumping && jumpCount < maxJumps) {
+        velocity.y = -jumpSpeed;
+        jumpCount++;
+    }
+    wasJumping = movementInput.up;
+}
+
+void Player::applyGravity(float deltaTime) {
+    if (!movementInput.up && velocity.y < 0) {
+        velocity.y += strongGravity * deltaTime;
+    } else {
+        velocity.y += gravity * deltaTime;
+    }
+
+    if (velocity.y > maxFallSpeed) {
+        velocity.y = maxFallSpeed;
+    }
+}
+
+void Player::updatePosition(float deltaTime) {
+    prevPos = {colliderRect.x, colliderRect.y};
+
+    colliderRect.x += (velocity.x + knockbackVelocity.x) * deltaTime;
+    colliderRect.y += (velocity.y + knockbackVelocity.y) * deltaTime;
+
+    renderRect.x = colliderRect.x;
+    renderRect.y = colliderRect.y;
+
+    if (onGround && velocity.y > 0) {
+        onGround = false;
+        jumpCount = 1;
+    }
+
+    knockbackVelocity *= 0.9f; // decay knockback over time
+    if (std::abs(knockbackVelocity.x) < 0.01f)
+        knockbackVelocity.x = 0;
+    if (std::abs(knockbackVelocity.y) < 0.01f)
+        knockbackVelocity.y = 0;
+}
+
+void Player::setPrimaryWeapon(Weapon *pw) {
+    // if (weapon) {
+    //     weapon->clean();
+    //     delete weapon;
+    // }
+    primaryWeapon = pw;
+}
+
+void Player::respawn() {
+    // TODO: update this with screen size
+    if (--lives > 0) {
+        colliderRect.x = 480;
+        colliderRect.y = -50;
+        renderRect.x = colliderRect.x;
+        renderRect.y = colliderRect.y;
+
+        velocity = {0, 0};
+        jumpCount = 1;
+        health = maxHealth;
+
+        // weapon->reset();
+    }
+}
+
+// void Player::clean() {
+//     GameObject::clean();
+
+//     if (weapon) {
+//         weapon->clean();
+//         delete weapon;
+//         weapon = nullptr;
+//     }
+// }
+
+void Player::onCollisionWithPlatform(const SDL_FRect &platformColliderRect) {
+    if (movementInput.down) {
+        jumpCount = 1;
+        return;
+    }
+
+    float feetY = colliderRect.y + colliderRect.h;
+    float prevFeetY = prevPos.y + colliderRect.h;
+    bool isFalling = velocity.y >= 0;
+    bool isAbove = prevFeetY <= platformColliderRect.y;
+
+    if (isAbove && isFalling) {
+        colliderRect.y = platformColliderRect.y - colliderRect.h;
+        velocity.y = 0;
+        jumpCount = 0;
+        onGround = true;
+    }
+}
+
+void Player::onCollisionWithBullet(float damage, float knockback, FacingDirection bulletFacingDirection){
+    health -= damage;
+    if (health <= 0) {
+        if (lives > 0) {
+            respawn();
+        }
+    }
+    // Consistent knockback direction
+    float direction = (bulletFacingDirection == FacingDirection::RIGHT) ? 1.0f : -1.0f;
+    knockbackVelocity.x = direction * knockback;
+    knockbackVelocity.y = -1.0f * knockback; // Upward knockback
+}
+
+/src/PlayState.cpp:
+#include "PlayState.hpp"
+#include "Bullet.hpp"
+#include "CollisionHandler.hpp"
+#include "GameObject.hpp"
+#include "InputHandler.hpp"
+#include "Platform.hpp"
+#include "Player.hpp"
+#include "RangedWeapon.hpp"
+#include "TextureManager.hpp"
+#include "Vector2D.hpp"
+#include "Weapon.hpp"
+#include "utils.hpp"
+#include <algorithm>
+#include <iostream>
+
+bool PlayState::onEnter() {
+    std::string gameConfigFileName = "../assets/gameConfig.json";
+
+    utils::MapData mapData = utils::loadRandomMapFromJson(gameConfigFileName);
+    if (mapData.platforms.empty()) {
+        std::cout << "Map loading failed." << std::endl;
+        return false;
+    }
+    for (auto &platform : mapData.platforms) {
+        layeredGameObjectsMap["platforms"][platform->getId()] = std::move(platform);
+    }
+    for (const auto &[id, ptr] : layeredGameObjectsMap["platforms"]) {
+        sortedPlatformsId.push_back(id);
+    }
+    std::sort(sortedPlatformsId.begin(), sortedPlatformsId.end(),
+              [&](const std::string &a, const std::string &b) {
+                  return layeredGameObjectsMap["platforms"][a]->getColliderRect().y <
+                         layeredGameObjectsMap["platforms"][b]->getColliderRect().y;
+              });
+
+    utils::PlayerData playerData = utils::loadPlayersFromJson(gameConfigFileName, mapData.spawnPoints);
+    if (playerData.players.empty()) {
+        std::cout << "Player loading failed." << std::endl;
+        return false;
+    }
+    for (auto &player : playerData.players) {
+        std::string weaponType = "pistol";
+        std::unique_ptr<Weapon> weapon = utils::createWeapon(
+            weaponType,
+            player->getId(),
+            player->getColliderRect().x,
+            player->getColliderRect().y);
+
+        player->setPrimaryWeapon(weapon.get());
+
+        auto playerId = player->getId();
+        if (auto *rw = dynamic_cast<RangedWeapon *>(weapon.get())) {
+            rw->setSpawnBulletCallback([this, playerId](const std::string &, Weapon::FireMode mode) {
+                this->spawnBullet(playerId, mode);
+            });
+        }
+
+        layeredGameObjectsMap["weapons"][weapon->getId()] = std::move(weapon);
+        layeredGameObjectsMap["player"][player->getId()] = std::move(player);
+    }
+
+    playerControls = utils::loadPlayerControls(gameConfigFileName);
+
+    layerOrder = {"platforms", "player", "weapons", "bullets"};
+
+    std::cout << "entering PlayState..." << std::endl;
+    return true;
+}
+
+void PlayState::spawnBullet(const std::string &playerId, Weapon::FireMode mode) {
+
+    // std::cout << "bullet" << std::endl;
+    auto &players = layeredGameObjectsMap["player"];
+    auto it = players.find(playerId);
+    if (it == players.end())
+        return;
+
+    Player *player = static_cast<Player *>(it->second.get());
+
+    float bx = player->getColliderRect().x + player->getColliderRect().w / 2;
+    float by = player->getColliderRect().y + player->getColliderRect().h / 2;
+    Vector2D dir = (player->getFacingDirection() == MovableObject::LEFT) ? Vector2D(-1, 0) : Vector2D(1, 0);
+
+    std::string bulletId = playerId + "_bullet_" + std::to_string(SDL_GetTicks());
+    SDL_Color bulletColor = {255, 255, 0, 255};
+
+    auto bullet = std::make_unique<Bullet>(bulletId, playerId, bx, by, 8, 4, bulletColor, dir, 600.0f);
+    layeredGameObjectsMap["bullets"][bulletId] = std::move(bullet);
+}
+
+bool PlayState::onExit() {
+    for (auto &[layer, gameObjectsMap] : layeredGameObjectsMap) {
+        for (auto &[id, gameObject] : gameObjectsMap) {
+            gameObject->clean();
+        }
+    }
+    layeredGameObjectsMap.clear();
+
+    std::cout << "exiting PlayState..." << std::endl;
+    return true;
+}
+
+void PlayState::update(float deltaTime) {
+    updatePlayerInputs();
+    updateGameObjects(deltaTime);
+    handleCollisions();
+
+    // TODO: remove from gameobjectmap if they move out of the screen or are destroyed
+}
+
+void PlayState::updatePlayerInputs() {
+    for (auto &[id, gameObject] : layeredGameObjectsMap["player"]) {
+        Player *player = dynamic_cast<Player *>(gameObject.get());
+        if (player) {
+            utils::PlayerControls &controls = playerControls[player->getId()];
+            Player::MovementInput input;
+            if (_InputHandler::Instance().isKeyDown(controls.left))
+                input.left = true;
+            if (_InputHandler::Instance().isKeyDown(controls.right))
+                input.right = true;
+            if (_InputHandler::Instance().isKeyDown(controls.up))
+                input.up = true;
+            if (_InputHandler::Instance().isKeyDown(controls.down))
+                input.down = true;
+            if (_InputHandler::Instance().isKeyDown(controls.primaryShoot))
+                input.primaryFire = true;
+            if (_InputHandler::Instance().isKeyDown(controls.secondaryShoot))
+                input.secondaryFire = true;
+            player->setMovement(input);
+        }
+    }
+}
+
+void PlayState::updateGameObjects(float deltaTime) {
+    for (auto &[layer, gameObjectsMap] : layeredGameObjectsMap) {
+
+        for (auto &[id, gameObject] : gameObjectsMap) {
+            // std::cout << id << std::endl;
+            gameObject->update(deltaTime);
+        }
+    }
+
+    for (auto it = layeredGameObjectsMap["bullets"].begin(); it != layeredGameObjectsMap["bullets"].end();) {
+        Bullet *b = static_cast<Bullet *>(it->second.get());
+        if (b->isExpired()) {
+            it = layeredGameObjectsMap["bullets"].erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
+void PlayState::handleCollisions() {
+    // player-platform collisions
+    for (auto &[id, gameObject] : layeredGameObjectsMap["player"]) {
+        Player *player = static_cast<Player *>(gameObject.get());
+        auto it = std::lower_bound(sortedPlatformsId.begin(), sortedPlatformsId.end(), player->getColliderRect().y,
+                                   [&](const std::string &id, int y) {
+                                       const SDL_FRect &rect = layeredGameObjectsMap["platforms"][id]->getColliderRect();
+                                       return rect.y + rect.h < y;
+                                   });
+        if (it == sortedPlatformsId.end())
+            continue;
+
+        int firstPlatformy = layeredGameObjectsMap["platforms"][*it]->getColliderRect().y;
+        while (it != sortedPlatformsId.end() &&
+               layeredGameObjectsMap["platforms"][*it]->getColliderRect().y == firstPlatformy) {
+            const SDL_FRect &platRect = layeredGameObjectsMap["platforms"][*it]->getColliderRect();
+            // std::cout << "Checking collision with platform: " << *it << std::endl;
+            if (SDL_HasIntersectionF(&player->getColliderRect(), &platRect)) {
+                player->onCollisionWithPlatform(platRect);
+                break;
+            }
+            ++it;
+        }
+    }
+
+    for (auto &[id, gameObject] : layeredGameObjectsMap["bullets"]) {
+        Bullet *bullet = static_cast<Bullet *>(gameObject.get());
+        for (auto &[pid, pgameObject] : layeredGameObjectsMap["player"]) {
+            Player *player = static_cast<Player *>(pgameObject.get());
+            if (bullet->getPlayerId() == player->getId())
+                continue;
+            if (SDL_HasIntersectionF(&bullet->getColliderRect(), &player->getColliderRect())) {
+                MovableObject::FacingDirection facingDir =
+                    (bullet->getDirection().x < 0) ? MovableObject::FacingDirection::LEFT : MovableObject::FacingDirection::RIGHT;
+                player->onCollisionWithBullet(bullet->getDamage(), bullet->getKnockback(), facingDir);
+                bullet->setExpired(true);
+                break;
+            }
+        }
+    }
+}
+
+void PlayState::render() {
+    for (const std::string &layer : layerOrder) {
+        for (auto &[id, gameObject] : layeredGameObjectsMap[layer]) {
+            gameObject->draw();
+        }
+    }
+}
+
+void PlayState::onKeyDown(SDL_Event &event) {
+}
+
+void PlayState::onKeyUp(SDL_Event &event) {
+}
+
+void PlayState::onMouseButtonDown(SDL_Event &event) {
+}
+
+void PlayState::onMouseButtonUp(SDL_Event &event) {
+}
+
+void PlayState::onMouseMove(SDL_Event &event) {
+}
+
+
+/src/RangedWeapon.cpp:
+#include "RangedWeapon.hpp"
+#include <iostream>
+
+RangedWeapon::RangedWeapon(const std::string &id, const std::string &playerId, float x, float y, float w, float h, const SDL_Color &color,
+                           float scale, double rotation)
+    : Weapon(id, playerId, x, y, w, h, color, scale, rotation) {
+        isReloading = false;
+}
+
+void RangedWeapon::fire(FireMode mode) {
+    if (isReloading) {
+        return;
+    }
+
+    if (mode == FireMode::PRIMARY) {
+        if (ammo > 0 && timeSinceLastPrimaryFire >= primaryFireCooldown) {
+            // std::cout << "prim" << std::endl;
+            if (spawnBullet) {
+                spawnBullet(playerId, mode);
+            }
+            ammo--;
+            timeSinceLastPrimaryFire = 0;
+            if (ammo == 0) {
+                reload();
+            }
+        }
+    } else if (mode == FireMode::SECONDARY) {
+        if (ammo > 0 && timeSinceLastSecondaryFire >= secondaryFireCooldown) {
+            // std::cout << "sec" << std::endl;
+            if (spawnBullet) {
+                spawnBullet(playerId, mode);
+            }
+            ammo--;
+            timeSinceLastSecondaryFire = 0;
+            if (ammo == 0) {
+                reload();
+            }
+        }
+    }
+}
+
+void RangedWeapon::update(float deltaTime) {
+    Weapon::update(deltaTime);
+
+    if (isReloading) {
+        reloadTimer += deltaTime;
+        if (reloadTimer >= reloadTime) {
+            ammo = maxAmmo;
+            isReloading = false;
+            reloadTimer = 0.0f;
+        }
+    }
+}
+
+void RangedWeapon::reload() {
+    if (!isReloading && ammo < maxAmmo) {
+        isReloading = true;
+        reloadTimer = 0.0f;
+    }
+}
+
+/src/TextureManager.cpp:
+#include "TextureManager.hpp"
+#include "Game.hpp"
+#include <iostream>
+
+bool TextureManager::createTextureFromRect(const std::string &id, const SDL_FRect &rect, const SDL_Color &color) {
+    SDL_Renderer *renderer = _Game::Instance().getRenderer();
+
+    SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, int(rect.w), int(rect.h), 32, SDL_PIXELFORMAT_RGBA32);
+    SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a));
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
+
+    textureMap[id] = texture;
+    return true;
+}
+
+void TextureManager::draw(const std::string &id, SDL_FRect &rect, double angle, SDL_RendererFlip flip, const SDL_FPoint *center) {
+    auto it = textureMap.find(id);
+    if (it == textureMap.end()) {
+        std::cout << "Texture with ID '" << id << "' not found in texture map." << std::endl;
+        return;
+    }
+    SDL_RenderCopyExF(_Game::Instance().getRenderer(), textureMap[id], NULL, &rect, angle, center, flip);
+}
+
+void TextureManager::removeFromTextureMap(const std::string &id) {
+    if (textureMap.find(id) != textureMap.end()) {
+        SDL_DestroyTexture(textureMap[id]);
+        textureMap.erase(id);
+    }
+}
+
+/src/Timer.cpp:
+#include "Timer.hpp"
+#include <iostream>
+
+Timer::Timer(int targetFPS) : targetFPS(targetFPS) {
+    frameDelay = 1000 / targetFPS;
+    lastFrameTime = SDL_GetTicks();
+}
+
+void Timer::startFrame() {
+    frameStart = SDL_GetTicks();
+    deltaTime = (frameStart - lastFrameTime) / 1000.0f;
+    lastFrameTime = frameStart;
+}
+
+void Timer::endFrame() const {
+    int frameTime = SDL_GetTicks() - frameStart;
+    if (frameTime < frameDelay) {
+        SDL_Delay(frameDelay - frameTime);
+    }
+    else {
+        // std::cout << "Frame took too long: " << frameTime << " ms, expected: " << frameDelay << " ms" << std::endl;
+    }
+}
+
+float Timer::getFPS() const {
+    return 1.0f / deltaTime;
+}
+
+float Timer::getDeltaTime() const {
+    return deltaTime;
+}
+
+/src/utils.cpp:
+#include "utils.hpp"
+#include "Pistol.hpp"
+#include "json.hpp"
+#include <fstream>
+#include <iostream>
+#include <sstream>
+using json = nlohmann::json;
+
+utils::MapData utils::loadRandomMapFromJson(const std::string &filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        std::cout << "Failed to open map file: " << filename << std::endl;
+        return {};
+    }
+
+    json data;
+    file >> data;
+
+    const auto &mapData = data["maps"];
+
+    std::vector<std::string> mapNames;
+    for (auto &entry : mapData.items()) {
+        mapNames.push_back(entry.key());
+    }
+
+    if (mapNames.empty())
+        return {};
+
+    srand(static_cast<unsigned>(time(nullptr)));
+    std::string selectedMap = mapNames[rand() % mapNames.size()];
+    const auto &map = mapData[selectedMap];
+
+    std::vector<std::unique_ptr<Platform>> platforms;
+    for (const auto &p : map["platforms"]) {
+        SDL_Color color = {
+            p["color"]["r"],
+            p["color"]["g"],
+            p["color"]["b"],
+            p["color"]["a"]};
+
+        std::unique_ptr<Platform> platform = std::make_unique<Platform>(p["id"], p["x"], p["y"], p["w"], p["h"], color);
+
+        platforms.push_back(std::move(platform));
+    }
+
+    std::vector<SDL_Point> spawnPoints;
+    for (const auto &s : map["spawnPoints"]) {
+        spawnPoints.push_back({s["x"], s["y"]});
+    }
+
+    return {std::move(platforms), spawnPoints, selectedMap};
+}
+
+utils::PlayerData utils::loadPlayersFromJson(const std::string &filename, const std::vector<SDL_Point> &spawnPoints) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        std::cout << "Failed to open player config file: " << filename << std::endl;
+        return {};
+    }
+
+    json data;
+    file >> data;
+
+    const auto &playersData = data["players"];
+    std::vector<std::unique_ptr<Player>> players;
+
+    int i = 0;
+    for (auto &[key, value] : playersData.items()) {
+
+        std::string id = value["id"];
+        int w = value["w"];
+        int h = value["h"];
+        SDL_Color color = {
+            value["color"]["r"],
+            value["color"]["g"],
+            value["color"]["b"],
+            value["color"]["a"]};
+
+        int x = spawnPoints[i].x;
+        int y = spawnPoints[i].y;
+
+        std::unique_ptr<Player> player = std::make_unique<Player>(id, x, y, w, h, color);
+        players.push_back(std::move(player));
+        i++;
+    }
+
+    return {std::move(players)};
+}
+
+utils::ScreenSize utils::loadScreenSizeFromJson(const std::string &filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        std::cout << "Failed to open screen size config file: " << filename << std::endl;
+    }
+
+    json data;
+    file >> data;
+
+    return {data["screen"]["width"], data["screen"]["height"]};
+}
+
+std::unordered_map<std::string, utils::PlayerControls> utils::loadPlayerControls(const std::string &filePath) {
+    static std::unordered_map<std::string, SDL_Scancode> keyNameToScanCode = {
+        {"A", SDL_SCANCODE_A},
+        {"B", SDL_SCANCODE_B},
+        {"D", SDL_SCANCODE_D},
+        {"S", SDL_SCANCODE_S},
+        {"W", SDL_SCANCODE_W},
+        {"T", SDL_SCANCODE_T},
+        {"Y", SDL_SCANCODE_Y},
+        {"UP", SDL_SCANCODE_UP},
+        {"DOWN", SDL_SCANCODE_DOWN},
+        {"LEFT", SDL_SCANCODE_LEFT},
+        {"RIGHT", SDL_SCANCODE_RIGHT},
+        {"LESS", SDL_SCANCODE_COMMA},
+        {"GREATER", SDL_SCANCODE_PERIOD}};
+
+    std::ifstream file(filePath);
+    json data;
+    file >> data;
+
+    std::unordered_map<std::string, utils::PlayerControls> controlsMap;
+
+    for (auto &[playerKey, playerInfo] : data["players"].items()) {
+        auto &ctrl = playerInfo["controls"];
+        utils::PlayerControls pc;
+        pc.up = keyNameToScanCode[ctrl["up"]];
+        pc.down = keyNameToScanCode[ctrl["down"]];
+        pc.left = keyNameToScanCode[ctrl["left"]];
+        pc.right = keyNameToScanCode[ctrl["right"]];
+        pc.primaryShoot = keyNameToScanCode[ctrl["primaryShoot"]];
+        pc.secondaryShoot = keyNameToScanCode[ctrl["secondaryShoot"]];
+        controlsMap[playerInfo["id"]] = pc;
+    }
+
+    return controlsMap;
+}
+
+std::unique_ptr<Weapon> utils::createWeapon(const std::string &type, const std::string &playerId, float x, float y,
+                                            float scale, double rotation) {
+    std::ifstream file("../assets/gameConfig.json");
+    if (!file.is_open()) {
+        std::cout << "Failed to open map file: " << "../assets/gameConfig.json" << std::endl;
+        return {};
+    }
+
+    json data;
+    file >> data;
+
+    const auto &weaponInfo = data["weapons"][type];
+    SDL_Color color = {
+        weaponInfo["color"]["r"],
+        weaponInfo["color"]["g"],
+        weaponInfo["color"]["b"],
+        weaponInfo["color"]["a"]};
+
+    std::unique_ptr<Weapon> weapon;
+
+    if (type == "pistol") {
+        weapon = std::make_unique<Pistol>(std::string(weaponInfo["id"]) + "_" + playerId, playerId, x, y, weaponInfo["w"],
+                                          weaponInfo["h"], color);
+    }
+    return std::move(weapon);
+}
+
+
+/src/Vector2D.cpp:
+#include "Vector2D.hpp"
+#include <math.h>
+
+float Vector2D::length() const {
+    return sqrt(x * x + y * y);
+}
+
+// void Vector2D::setX(float X) {
+//     x = X;
+// }
+
+// void Vector2D::setY(float Y) {
+//     y = Y;
+// }
+
+// void Vector2D::setXY(float X, float Y) {
+//     x = X;
+//     y = Y;
+// };
+void Vector2D::normalise() {
+    float l = length();
+    if (l > 0) {
+        (*this) *= 1 / l;
+    }
+}
+
+Vector2D Vector2D::operator+(const Vector2D &v2) const {
+    return Vector2D(x + v2.x, y + v2.y);
+}
+
+Vector2D &Vector2D::operator+=(const Vector2D &v2) {
+    x += v2.x;
+    y += v2.y;
+
+    return *this;
+}
+
+Vector2D Vector2D::operator-(const Vector2D &v2) const {
+    return Vector2D(x - v2.x, y - v2.y);
+}
+
+Vector2D &Vector2D::operator-=(const Vector2D &v2) {
+    x -= v2.x;
+    y -= v2.y;
+
+    return *this;
+}
+
+Vector2D Vector2D::operator*(float scalar) {
+    return Vector2D(x * scalar, y * scalar);
+}
+
+Vector2D &Vector2D::operator*=(float scalar) {
+    x *= scalar;
+    y *= scalar;
+
+    return *this;
+}
+
+Vector2D Vector2D::operator/(float scalar) {
+    return Vector2D(x / scalar, y / scalar);
+}
+
+Vector2D &Vector2D::operator/=(float scalar) {
+    x /= scalar;
+    y /= scalar;
+
+    return *this;
+}
+
+/src/Weapon.cpp:
+#include "Weapon.hpp"
+#include <iostream>
+
+Weapon::Weapon(const std::string &id, const std::string &playerId, float x, float y, float w, float h, const SDL_Color &color,
+               float scale, double rotation)
+    : MovableObject(id, x, y, w, h, color, scale, rotation),
+      playerId(playerId) {
+}
+
+void Weapon::reload() {
+    ammo = maxAmmo;
+}
+
+void Weapon::update(float deltaTime) {
+    if (timeSinceLastPrimaryFire < primaryFireCooldown) {
+        timeSinceLastPrimaryFire += deltaTime;
+    }
+    if (timeSinceLastSecondaryFire < secondaryFireCooldown) {
+        timeSinceLastSecondaryFire += deltaTime;
+    }
+
+    float weaponOffset = 10.0f; // how far away from the body
+    if (playerFacingDirection == FacingDirection::LEFT) {
+        colliderRect.x = playerPosition.x - colliderRect.w;
+    } else {
+        colliderRect.x = playerPosition.x + weaponOffset;
+    }
+    renderRect.x = colliderRect.x;
+
+    // align vertically to player's center
+    colliderRect.y = playerPosition.y + (colliderRect.h / 2);
+    renderRect.y = colliderRect.y;
+}
+
+void Weapon::setPlayerPosition(float x, float y) {
+    playerPosition = {x, y};
+}
+

@@ -1,0 +1,114 @@
+{
+    "screen": {
+        "width": 1280,
+        "height": 720
+    },
+    "maps": {
+        "map1": {
+            "platforms": [
+                {
+                    "id": "Platform1",
+                    "x": 280,
+                    "y": 300,
+                    "w": 400,
+                    "h": 30,
+                    "color": {
+                        "r": 255,
+                        "g": 255,
+                        "b": 255,
+                        "a": 255
+                    }
+                },
+                {
+                    "id": "Platform2",
+                    "x": 100,
+                    "y": 430,
+                    "w": 300,
+                    "h": 30,
+                    "color": {
+                        "r": 255,
+                        "g": 255,
+                        "b": 255,
+                        "a": 255
+                    }
+                },
+                {
+                    "id": "Platform3",
+                    "x": 600,
+                    "y": 430,
+                    "w": 300,
+                    "h": 30,
+                    "color": {
+                        "r": 255,
+                        "g": 255,
+                        "b": 255,
+                        "a": 255
+                    }
+                }
+            ],
+            "spawnPoints": [
+                {
+                    "x": 200,
+                    "y": 100
+                },
+                {
+                    "x": 400,
+                    "y": 100
+                }
+            ]
+        }
+    },
+    "players": {
+        "player1": {
+            "id": "Player1",
+            "w": 10,
+            "h": 20,
+            "color": {
+                "r": 255,
+                "g": 0,
+                "b": 0,
+                "a": 255
+            },
+            "controls": {
+                "up": "W",
+                "down": "S",
+                "left": "A",
+                "right": "D",
+                "primaryShoot": "1",
+                "secondaryShoot": "Q"
+            }
+        },
+        "player2": {
+            "id": "Player2",
+            "w": 10,
+            "h": 20,
+            "color": {
+                "r": 0,
+                "g": 255,
+                "b": 0,
+                "a": 255
+            },
+            "controls": {
+                "up": "UP",
+                "down": "DOWN",
+                "left": "LEFT",
+                "right": "RIGHT",
+                "primaryShoot": "LESS",
+                "secondaryShoot": "GREATER"
+            }
+        }
+    },
+    "weapons": {
+        "pistol": {
+            "id": "Pistol",
+            "w": 20,
+            "h": 10,
+            "color": {
+                "r": 200,
+                "g": 200,
+                "b": 0,
+                "a": 255
+            }
+        }
+    }
+}
