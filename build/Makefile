@@ -56,10 +56,10 @@ RM = "C:\Program Files\CMake\bin\cmake.exe" -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = D:\Game\GunMayhem3
+CMAKE_SOURCE_DIR = C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = D:\Game\GunMayhem3\build
+CMAKE_BINARY_DIR = C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -86,9 +86,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start D:\Game\GunMayhem3\build\CMakeFiles D:\Game\GunMayhem3\build\\CMakeFiles\progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\\CMakeFiles\progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start D:\Game\GunMayhem3\build\CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -127,6 +127,30 @@ GunMayhem: cmake_check_build_system
 GunMayhem/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\GunMayhem.dir\build.make CMakeFiles/GunMayhem.dir/build
 .PHONY : GunMayhem/fast
+
+build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.obj: build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.obj
+.PHONY : build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.obj
+
+# target to build an object file
+build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\GunMayhem.dir\build.make CMakeFiles/GunMayhem.dir/build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.obj
+.PHONY : build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.obj
+
+build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.i: build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.i
+.PHONY : build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.i
+
+# target to preprocess a source file
+build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\GunMayhem.dir\build.make CMakeFiles/GunMayhem.dir/build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.i
+.PHONY : build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.i
+
+build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.s: build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.s
+.PHONY : build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.s
+
+# target to generate assembly for a file
+build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\GunMayhem.dir\build.make CMakeFiles/GunMayhem.dir/build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.s
+.PHONY : build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.s
 
 main.obj: main.cpp.obj
 .PHONY : main.obj
@@ -584,6 +608,30 @@ src/Weapon.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\GunMayhem.dir\build.make CMakeFiles/GunMayhem.dir/src/Weapon.cpp.s
 .PHONY : src/Weapon.cpp.s
 
+src/python_bindings.obj: src/python_bindings.cpp.obj
+.PHONY : src/python_bindings.obj
+
+# target to build an object file
+src/python_bindings.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\GunMayhem.dir\build.make CMakeFiles/GunMayhem.dir/src/python_bindings.cpp.obj
+.PHONY : src/python_bindings.cpp.obj
+
+src/python_bindings.i: src/python_bindings.cpp.i
+.PHONY : src/python_bindings.i
+
+# target to preprocess a source file
+src/python_bindings.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\GunMayhem.dir\build.make CMakeFiles/GunMayhem.dir/src/python_bindings.cpp.i
+.PHONY : src/python_bindings.cpp.i
+
+src/python_bindings.s: src/python_bindings.cpp.s
+.PHONY : src/python_bindings.s
+
+# target to generate assembly for a file
+src/python_bindings.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\GunMayhem.dir\build.make CMakeFiles/GunMayhem.dir/src/python_bindings.cpp.s
+.PHONY : src/python_bindings.cpp.s
+
 src/utils.obj: src/utils.cpp.obj
 .PHONY : src/utils.obj
 
@@ -617,6 +665,9 @@ help:
 	@echo ... edit_cache
 	@echo ... rebuild_cache
 	@echo ... GunMayhem
+	@echo ... build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.obj
+	@echo ... build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.i
+	@echo ... build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.s
 	@echo ... main.obj
 	@echo ... main.i
 	@echo ... main.s
@@ -674,6 +725,9 @@ help:
 	@echo ... src/Weapon.obj
 	@echo ... src/Weapon.i
 	@echo ... src/Weapon.s
+	@echo ... src/python_bindings.obj
+	@echo ... src/python_bindings.i
+	@echo ... src/python_bindings.s
 	@echo ... src/utils.obj
 	@echo ... src/utils.i
 	@echo ... src/utils.s

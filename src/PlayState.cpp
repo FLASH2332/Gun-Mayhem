@@ -112,6 +112,11 @@ void PlayState::updatePlayerInputs() {
     for (auto &[id, gameObject] : layeredGameObjectsMap["player"]) {
         Player *player = dynamic_cast<Player *>(gameObject.get());
         if (player) {
+            // Skip players that don't have keyboard controls (AI-controlled)
+            if (playerControls.find(player->getId()) == playerControls.end()) {
+                continue;
+            }
+            
             utils::PlayerControls &controls = playerControls[player->getId()];
             Player::MovementInput input;
             if (_InputHandler::Instance().isKeyDown(controls.left))

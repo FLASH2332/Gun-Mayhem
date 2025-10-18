@@ -52,10 +52,10 @@ RM = "C:\Program Files\CMake\bin\cmake.exe" -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = D:\Game\GunMayhem3
+CMAKE_SOURCE_DIR = C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = D:\Game\GunMayhem3\build
+CMAKE_BINARY_DIR = C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/GunMayhem.dir/depend.make
@@ -71,308 +71,339 @@ include CMakeFiles/GunMayhem.dir/flags.make
 CMakeFiles/GunMayhem.dir/codegen:
 .PHONY : CMakeFiles/GunMayhem.dir/codegen
 
+CMakeFiles/GunMayhem.dir/build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
+CMakeFiles/GunMayhem.dir/build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
+CMakeFiles/GunMayhem.dir/build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp
+CMakeFiles/GunMayhem.dir/build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/GunMayhem.dir/build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.obj -MF CMakeFiles\GunMayhem.dir\build_pybind\_deps\pybind11-src\tests\test_cmake_build\main.cpp.obj.d -o CMakeFiles\GunMayhem.dir\build_pybind\_deps\pybind11-src\tests\test_cmake_build\main.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build_pybind\_deps\pybind11-src\tests\test_cmake_build\main.cpp
+
+CMakeFiles/GunMayhem.dir/build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.i"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build_pybind\_deps\pybind11-src\tests\test_cmake_build\main.cpp > CMakeFiles\GunMayhem.dir\build_pybind\_deps\pybind11-src\tests\test_cmake_build\main.cpp.i
+
+CMakeFiles/GunMayhem.dir/build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.s"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build_pybind\_deps\pybind11-src\tests\test_cmake_build\main.cpp -o CMakeFiles\GunMayhem.dir\build_pybind\_deps\pybind11-src\tests\test_cmake_build\main.cpp.s
+
 CMakeFiles/GunMayhem.dir/main.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
 CMakeFiles/GunMayhem.dir/main.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
-CMakeFiles/GunMayhem.dir/main.cpp.obj: D:/Game/GunMayhem3/main.cpp
+CMakeFiles/GunMayhem.dir/main.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/main.cpp
 CMakeFiles/GunMayhem.dir/main.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Game\GunMayhem3\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/GunMayhem.dir/main.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/main.cpp.obj -MF CMakeFiles\GunMayhem.dir\main.cpp.obj.d -o CMakeFiles\GunMayhem.dir\main.cpp.obj -c D:\Game\GunMayhem3\main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/GunMayhem.dir/main.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/main.cpp.obj -MF CMakeFiles\GunMayhem.dir\main.cpp.obj.d -o CMakeFiles\GunMayhem.dir\main.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\main.cpp
 
 CMakeFiles/GunMayhem.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/main.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Game\GunMayhem3\main.cpp > CMakeFiles\GunMayhem.dir\main.cpp.i
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\main.cpp > CMakeFiles\GunMayhem.dir\main.cpp.i
 
 CMakeFiles/GunMayhem.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/main.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Game\GunMayhem3\main.cpp -o CMakeFiles\GunMayhem.dir\main.cpp.s
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\main.cpp -o CMakeFiles\GunMayhem.dir\main.cpp.s
 
 CMakeFiles/GunMayhem.dir/src/Bullet.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
 CMakeFiles/GunMayhem.dir/src/Bullet.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
-CMakeFiles/GunMayhem.dir/src/Bullet.cpp.obj: D:/Game/GunMayhem3/src/Bullet.cpp
+CMakeFiles/GunMayhem.dir/src/Bullet.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/src/Bullet.cpp
 CMakeFiles/GunMayhem.dir/src/Bullet.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Game\GunMayhem3\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/GunMayhem.dir/src/Bullet.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/Bullet.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\Bullet.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\Bullet.cpp.obj -c D:\Game\GunMayhem3\src\Bullet.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/GunMayhem.dir/src/Bullet.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/Bullet.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\Bullet.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\Bullet.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Bullet.cpp
 
 CMakeFiles/GunMayhem.dir/src/Bullet.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/src/Bullet.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Game\GunMayhem3\src\Bullet.cpp > CMakeFiles\GunMayhem.dir\src\Bullet.cpp.i
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Bullet.cpp > CMakeFiles\GunMayhem.dir\src\Bullet.cpp.i
 
 CMakeFiles/GunMayhem.dir/src/Bullet.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/src/Bullet.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Game\GunMayhem3\src\Bullet.cpp -o CMakeFiles\GunMayhem.dir\src\Bullet.cpp.s
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Bullet.cpp -o CMakeFiles\GunMayhem.dir\src\Bullet.cpp.s
 
 CMakeFiles/GunMayhem.dir/src/CollisionHandler.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
 CMakeFiles/GunMayhem.dir/src/CollisionHandler.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
-CMakeFiles/GunMayhem.dir/src/CollisionHandler.cpp.obj: D:/Game/GunMayhem3/src/CollisionHandler.cpp
+CMakeFiles/GunMayhem.dir/src/CollisionHandler.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/src/CollisionHandler.cpp
 CMakeFiles/GunMayhem.dir/src/CollisionHandler.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Game\GunMayhem3\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/GunMayhem.dir/src/CollisionHandler.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/CollisionHandler.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\CollisionHandler.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\CollisionHandler.cpp.obj -c D:\Game\GunMayhem3\src\CollisionHandler.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/GunMayhem.dir/src/CollisionHandler.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/CollisionHandler.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\CollisionHandler.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\CollisionHandler.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\CollisionHandler.cpp
 
 CMakeFiles/GunMayhem.dir/src/CollisionHandler.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/src/CollisionHandler.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Game\GunMayhem3\src\CollisionHandler.cpp > CMakeFiles\GunMayhem.dir\src\CollisionHandler.cpp.i
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\CollisionHandler.cpp > CMakeFiles\GunMayhem.dir\src\CollisionHandler.cpp.i
 
 CMakeFiles/GunMayhem.dir/src/CollisionHandler.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/src/CollisionHandler.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Game\GunMayhem3\src\CollisionHandler.cpp -o CMakeFiles\GunMayhem.dir\src\CollisionHandler.cpp.s
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\CollisionHandler.cpp -o CMakeFiles\GunMayhem.dir\src\CollisionHandler.cpp.s
 
 CMakeFiles/GunMayhem.dir/src/Game.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
 CMakeFiles/GunMayhem.dir/src/Game.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
-CMakeFiles/GunMayhem.dir/src/Game.cpp.obj: D:/Game/GunMayhem3/src/Game.cpp
+CMakeFiles/GunMayhem.dir/src/Game.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/src/Game.cpp
 CMakeFiles/GunMayhem.dir/src/Game.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Game\GunMayhem3\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/GunMayhem.dir/src/Game.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/Game.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\Game.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\Game.cpp.obj -c D:\Game\GunMayhem3\src\Game.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/GunMayhem.dir/src/Game.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/Game.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\Game.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\Game.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Game.cpp
 
 CMakeFiles/GunMayhem.dir/src/Game.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/src/Game.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Game\GunMayhem3\src\Game.cpp > CMakeFiles\GunMayhem.dir\src\Game.cpp.i
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Game.cpp > CMakeFiles\GunMayhem.dir\src\Game.cpp.i
 
 CMakeFiles/GunMayhem.dir/src/Game.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/src/Game.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Game\GunMayhem3\src\Game.cpp -o CMakeFiles\GunMayhem.dir\src\Game.cpp.s
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Game.cpp -o CMakeFiles\GunMayhem.dir\src\Game.cpp.s
 
 CMakeFiles/GunMayhem.dir/src/GameObject.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
 CMakeFiles/GunMayhem.dir/src/GameObject.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
-CMakeFiles/GunMayhem.dir/src/GameObject.cpp.obj: D:/Game/GunMayhem3/src/GameObject.cpp
+CMakeFiles/GunMayhem.dir/src/GameObject.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/src/GameObject.cpp
 CMakeFiles/GunMayhem.dir/src/GameObject.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Game\GunMayhem3\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/GunMayhem.dir/src/GameObject.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/GameObject.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\GameObject.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\GameObject.cpp.obj -c D:\Game\GunMayhem3\src\GameObject.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/GunMayhem.dir/src/GameObject.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/GameObject.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\GameObject.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\GameObject.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\GameObject.cpp
 
 CMakeFiles/GunMayhem.dir/src/GameObject.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/src/GameObject.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Game\GunMayhem3\src\GameObject.cpp > CMakeFiles\GunMayhem.dir\src\GameObject.cpp.i
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\GameObject.cpp > CMakeFiles\GunMayhem.dir\src\GameObject.cpp.i
 
 CMakeFiles/GunMayhem.dir/src/GameObject.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/src/GameObject.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Game\GunMayhem3\src\GameObject.cpp -o CMakeFiles\GunMayhem.dir\src\GameObject.cpp.s
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\GameObject.cpp -o CMakeFiles\GunMayhem.dir\src\GameObject.cpp.s
 
 CMakeFiles/GunMayhem.dir/src/GameStateMachine.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
 CMakeFiles/GunMayhem.dir/src/GameStateMachine.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
-CMakeFiles/GunMayhem.dir/src/GameStateMachine.cpp.obj: D:/Game/GunMayhem3/src/GameStateMachine.cpp
+CMakeFiles/GunMayhem.dir/src/GameStateMachine.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/src/GameStateMachine.cpp
 CMakeFiles/GunMayhem.dir/src/GameStateMachine.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Game\GunMayhem3\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/GunMayhem.dir/src/GameStateMachine.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/GameStateMachine.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\GameStateMachine.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\GameStateMachine.cpp.obj -c D:\Game\GunMayhem3\src\GameStateMachine.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/GunMayhem.dir/src/GameStateMachine.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/GameStateMachine.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\GameStateMachine.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\GameStateMachine.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\GameStateMachine.cpp
 
 CMakeFiles/GunMayhem.dir/src/GameStateMachine.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/src/GameStateMachine.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Game\GunMayhem3\src\GameStateMachine.cpp > CMakeFiles\GunMayhem.dir\src\GameStateMachine.cpp.i
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\GameStateMachine.cpp > CMakeFiles\GunMayhem.dir\src\GameStateMachine.cpp.i
 
 CMakeFiles/GunMayhem.dir/src/GameStateMachine.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/src/GameStateMachine.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Game\GunMayhem3\src\GameStateMachine.cpp -o CMakeFiles\GunMayhem.dir\src\GameStateMachine.cpp.s
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\GameStateMachine.cpp -o CMakeFiles\GunMayhem.dir\src\GameStateMachine.cpp.s
 
 CMakeFiles/GunMayhem.dir/src/InputHandler.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
 CMakeFiles/GunMayhem.dir/src/InputHandler.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
-CMakeFiles/GunMayhem.dir/src/InputHandler.cpp.obj: D:/Game/GunMayhem3/src/InputHandler.cpp
+CMakeFiles/GunMayhem.dir/src/InputHandler.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/src/InputHandler.cpp
 CMakeFiles/GunMayhem.dir/src/InputHandler.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Game\GunMayhem3\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/GunMayhem.dir/src/InputHandler.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/InputHandler.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\InputHandler.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\InputHandler.cpp.obj -c D:\Game\GunMayhem3\src\InputHandler.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/GunMayhem.dir/src/InputHandler.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/InputHandler.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\InputHandler.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\InputHandler.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\InputHandler.cpp
 
 CMakeFiles/GunMayhem.dir/src/InputHandler.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/src/InputHandler.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Game\GunMayhem3\src\InputHandler.cpp > CMakeFiles\GunMayhem.dir\src\InputHandler.cpp.i
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\InputHandler.cpp > CMakeFiles\GunMayhem.dir\src\InputHandler.cpp.i
 
 CMakeFiles/GunMayhem.dir/src/InputHandler.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/src/InputHandler.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Game\GunMayhem3\src\InputHandler.cpp -o CMakeFiles\GunMayhem.dir\src\InputHandler.cpp.s
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\InputHandler.cpp -o CMakeFiles\GunMayhem.dir\src\InputHandler.cpp.s
 
 CMakeFiles/GunMayhem.dir/src/MenuState.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
 CMakeFiles/GunMayhem.dir/src/MenuState.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
-CMakeFiles/GunMayhem.dir/src/MenuState.cpp.obj: D:/Game/GunMayhem3/src/MenuState.cpp
+CMakeFiles/GunMayhem.dir/src/MenuState.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/src/MenuState.cpp
 CMakeFiles/GunMayhem.dir/src/MenuState.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Game\GunMayhem3\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/GunMayhem.dir/src/MenuState.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/MenuState.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\MenuState.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\MenuState.cpp.obj -c D:\Game\GunMayhem3\src\MenuState.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/GunMayhem.dir/src/MenuState.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/MenuState.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\MenuState.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\MenuState.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\MenuState.cpp
 
 CMakeFiles/GunMayhem.dir/src/MenuState.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/src/MenuState.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Game\GunMayhem3\src\MenuState.cpp > CMakeFiles\GunMayhem.dir\src\MenuState.cpp.i
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\MenuState.cpp > CMakeFiles\GunMayhem.dir\src\MenuState.cpp.i
 
 CMakeFiles/GunMayhem.dir/src/MenuState.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/src/MenuState.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Game\GunMayhem3\src\MenuState.cpp -o CMakeFiles\GunMayhem.dir\src\MenuState.cpp.s
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\MenuState.cpp -o CMakeFiles\GunMayhem.dir\src\MenuState.cpp.s
 
 CMakeFiles/GunMayhem.dir/src/MovableObject.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
 CMakeFiles/GunMayhem.dir/src/MovableObject.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
-CMakeFiles/GunMayhem.dir/src/MovableObject.cpp.obj: D:/Game/GunMayhem3/src/MovableObject.cpp
+CMakeFiles/GunMayhem.dir/src/MovableObject.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/src/MovableObject.cpp
 CMakeFiles/GunMayhem.dir/src/MovableObject.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Game\GunMayhem3\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/GunMayhem.dir/src/MovableObject.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/MovableObject.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\MovableObject.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\MovableObject.cpp.obj -c D:\Game\GunMayhem3\src\MovableObject.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/GunMayhem.dir/src/MovableObject.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/MovableObject.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\MovableObject.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\MovableObject.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\MovableObject.cpp
 
 CMakeFiles/GunMayhem.dir/src/MovableObject.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/src/MovableObject.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Game\GunMayhem3\src\MovableObject.cpp > CMakeFiles\GunMayhem.dir\src\MovableObject.cpp.i
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\MovableObject.cpp > CMakeFiles\GunMayhem.dir\src\MovableObject.cpp.i
 
 CMakeFiles/GunMayhem.dir/src/MovableObject.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/src/MovableObject.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Game\GunMayhem3\src\MovableObject.cpp -o CMakeFiles\GunMayhem.dir\src\MovableObject.cpp.s
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\MovableObject.cpp -o CMakeFiles\GunMayhem.dir\src\MovableObject.cpp.s
 
 CMakeFiles/GunMayhem.dir/src/NonMovableObject.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
 CMakeFiles/GunMayhem.dir/src/NonMovableObject.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
-CMakeFiles/GunMayhem.dir/src/NonMovableObject.cpp.obj: D:/Game/GunMayhem3/src/NonMovableObject.cpp
+CMakeFiles/GunMayhem.dir/src/NonMovableObject.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/src/NonMovableObject.cpp
 CMakeFiles/GunMayhem.dir/src/NonMovableObject.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Game\GunMayhem3\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/GunMayhem.dir/src/NonMovableObject.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/NonMovableObject.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\NonMovableObject.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\NonMovableObject.cpp.obj -c D:\Game\GunMayhem3\src\NonMovableObject.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/GunMayhem.dir/src/NonMovableObject.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/NonMovableObject.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\NonMovableObject.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\NonMovableObject.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\NonMovableObject.cpp
 
 CMakeFiles/GunMayhem.dir/src/NonMovableObject.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/src/NonMovableObject.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Game\GunMayhem3\src\NonMovableObject.cpp > CMakeFiles\GunMayhem.dir\src\NonMovableObject.cpp.i
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\NonMovableObject.cpp > CMakeFiles\GunMayhem.dir\src\NonMovableObject.cpp.i
 
 CMakeFiles/GunMayhem.dir/src/NonMovableObject.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/src/NonMovableObject.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Game\GunMayhem3\src\NonMovableObject.cpp -o CMakeFiles\GunMayhem.dir\src\NonMovableObject.cpp.s
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\NonMovableObject.cpp -o CMakeFiles\GunMayhem.dir\src\NonMovableObject.cpp.s
 
 CMakeFiles/GunMayhem.dir/src/Pistol.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
 CMakeFiles/GunMayhem.dir/src/Pistol.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
-CMakeFiles/GunMayhem.dir/src/Pistol.cpp.obj: D:/Game/GunMayhem3/src/Pistol.cpp
+CMakeFiles/GunMayhem.dir/src/Pistol.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/src/Pistol.cpp
 CMakeFiles/GunMayhem.dir/src/Pistol.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Game\GunMayhem3\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/GunMayhem.dir/src/Pistol.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/Pistol.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\Pistol.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\Pistol.cpp.obj -c D:\Game\GunMayhem3\src\Pistol.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/GunMayhem.dir/src/Pistol.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/Pistol.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\Pistol.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\Pistol.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Pistol.cpp
 
 CMakeFiles/GunMayhem.dir/src/Pistol.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/src/Pistol.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Game\GunMayhem3\src\Pistol.cpp > CMakeFiles\GunMayhem.dir\src\Pistol.cpp.i
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Pistol.cpp > CMakeFiles\GunMayhem.dir\src\Pistol.cpp.i
 
 CMakeFiles/GunMayhem.dir/src/Pistol.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/src/Pistol.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Game\GunMayhem3\src\Pistol.cpp -o CMakeFiles\GunMayhem.dir\src\Pistol.cpp.s
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Pistol.cpp -o CMakeFiles\GunMayhem.dir\src\Pistol.cpp.s
 
 CMakeFiles/GunMayhem.dir/src/Platform.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
 CMakeFiles/GunMayhem.dir/src/Platform.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
-CMakeFiles/GunMayhem.dir/src/Platform.cpp.obj: D:/Game/GunMayhem3/src/Platform.cpp
+CMakeFiles/GunMayhem.dir/src/Platform.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/src/Platform.cpp
 CMakeFiles/GunMayhem.dir/src/Platform.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Game\GunMayhem3\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/GunMayhem.dir/src/Platform.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/Platform.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\Platform.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\Platform.cpp.obj -c D:\Game\GunMayhem3\src\Platform.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/GunMayhem.dir/src/Platform.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/Platform.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\Platform.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\Platform.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Platform.cpp
 
 CMakeFiles/GunMayhem.dir/src/Platform.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/src/Platform.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Game\GunMayhem3\src\Platform.cpp > CMakeFiles\GunMayhem.dir\src\Platform.cpp.i
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Platform.cpp > CMakeFiles\GunMayhem.dir\src\Platform.cpp.i
 
 CMakeFiles/GunMayhem.dir/src/Platform.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/src/Platform.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Game\GunMayhem3\src\Platform.cpp -o CMakeFiles\GunMayhem.dir\src\Platform.cpp.s
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Platform.cpp -o CMakeFiles\GunMayhem.dir\src\Platform.cpp.s
 
 CMakeFiles/GunMayhem.dir/src/PlayState.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
 CMakeFiles/GunMayhem.dir/src/PlayState.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
-CMakeFiles/GunMayhem.dir/src/PlayState.cpp.obj: D:/Game/GunMayhem3/src/PlayState.cpp
+CMakeFiles/GunMayhem.dir/src/PlayState.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/src/PlayState.cpp
 CMakeFiles/GunMayhem.dir/src/PlayState.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Game\GunMayhem3\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/GunMayhem.dir/src/PlayState.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/PlayState.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\PlayState.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\PlayState.cpp.obj -c D:\Game\GunMayhem3\src\PlayState.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/GunMayhem.dir/src/PlayState.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/PlayState.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\PlayState.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\PlayState.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\PlayState.cpp
 
 CMakeFiles/GunMayhem.dir/src/PlayState.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/src/PlayState.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Game\GunMayhem3\src\PlayState.cpp > CMakeFiles\GunMayhem.dir\src\PlayState.cpp.i
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\PlayState.cpp > CMakeFiles\GunMayhem.dir\src\PlayState.cpp.i
 
 CMakeFiles/GunMayhem.dir/src/PlayState.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/src/PlayState.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Game\GunMayhem3\src\PlayState.cpp -o CMakeFiles\GunMayhem.dir\src\PlayState.cpp.s
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\PlayState.cpp -o CMakeFiles\GunMayhem.dir\src\PlayState.cpp.s
 
 CMakeFiles/GunMayhem.dir/src/Player.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
 CMakeFiles/GunMayhem.dir/src/Player.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
-CMakeFiles/GunMayhem.dir/src/Player.cpp.obj: D:/Game/GunMayhem3/src/Player.cpp
+CMakeFiles/GunMayhem.dir/src/Player.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/src/Player.cpp
 CMakeFiles/GunMayhem.dir/src/Player.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Game\GunMayhem3\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/GunMayhem.dir/src/Player.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/Player.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\Player.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\Player.cpp.obj -c D:\Game\GunMayhem3\src\Player.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/GunMayhem.dir/src/Player.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/Player.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\Player.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\Player.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Player.cpp
 
 CMakeFiles/GunMayhem.dir/src/Player.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/src/Player.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Game\GunMayhem3\src\Player.cpp > CMakeFiles\GunMayhem.dir\src\Player.cpp.i
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Player.cpp > CMakeFiles\GunMayhem.dir\src\Player.cpp.i
 
 CMakeFiles/GunMayhem.dir/src/Player.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/src/Player.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Game\GunMayhem3\src\Player.cpp -o CMakeFiles\GunMayhem.dir\src\Player.cpp.s
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Player.cpp -o CMakeFiles\GunMayhem.dir\src\Player.cpp.s
 
 CMakeFiles/GunMayhem.dir/src/RangedWeapon.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
 CMakeFiles/GunMayhem.dir/src/RangedWeapon.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
-CMakeFiles/GunMayhem.dir/src/RangedWeapon.cpp.obj: D:/Game/GunMayhem3/src/RangedWeapon.cpp
+CMakeFiles/GunMayhem.dir/src/RangedWeapon.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/src/RangedWeapon.cpp
 CMakeFiles/GunMayhem.dir/src/RangedWeapon.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Game\GunMayhem3\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/GunMayhem.dir/src/RangedWeapon.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/RangedWeapon.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\RangedWeapon.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\RangedWeapon.cpp.obj -c D:\Game\GunMayhem3\src\RangedWeapon.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/GunMayhem.dir/src/RangedWeapon.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/RangedWeapon.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\RangedWeapon.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\RangedWeapon.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\RangedWeapon.cpp
 
 CMakeFiles/GunMayhem.dir/src/RangedWeapon.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/src/RangedWeapon.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Game\GunMayhem3\src\RangedWeapon.cpp > CMakeFiles\GunMayhem.dir\src\RangedWeapon.cpp.i
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\RangedWeapon.cpp > CMakeFiles\GunMayhem.dir\src\RangedWeapon.cpp.i
 
 CMakeFiles/GunMayhem.dir/src/RangedWeapon.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/src/RangedWeapon.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Game\GunMayhem3\src\RangedWeapon.cpp -o CMakeFiles\GunMayhem.dir\src\RangedWeapon.cpp.s
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\RangedWeapon.cpp -o CMakeFiles\GunMayhem.dir\src\RangedWeapon.cpp.s
 
 CMakeFiles/GunMayhem.dir/src/TextureManager.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
 CMakeFiles/GunMayhem.dir/src/TextureManager.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
-CMakeFiles/GunMayhem.dir/src/TextureManager.cpp.obj: D:/Game/GunMayhem3/src/TextureManager.cpp
+CMakeFiles/GunMayhem.dir/src/TextureManager.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/src/TextureManager.cpp
 CMakeFiles/GunMayhem.dir/src/TextureManager.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Game\GunMayhem3\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/GunMayhem.dir/src/TextureManager.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/TextureManager.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\TextureManager.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\TextureManager.cpp.obj -c D:\Game\GunMayhem3\src\TextureManager.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object CMakeFiles/GunMayhem.dir/src/TextureManager.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/TextureManager.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\TextureManager.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\TextureManager.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\TextureManager.cpp
 
 CMakeFiles/GunMayhem.dir/src/TextureManager.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/src/TextureManager.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Game\GunMayhem3\src\TextureManager.cpp > CMakeFiles\GunMayhem.dir\src\TextureManager.cpp.i
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\TextureManager.cpp > CMakeFiles\GunMayhem.dir\src\TextureManager.cpp.i
 
 CMakeFiles/GunMayhem.dir/src/TextureManager.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/src/TextureManager.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Game\GunMayhem3\src\TextureManager.cpp -o CMakeFiles\GunMayhem.dir\src\TextureManager.cpp.s
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\TextureManager.cpp -o CMakeFiles\GunMayhem.dir\src\TextureManager.cpp.s
 
 CMakeFiles/GunMayhem.dir/src/Timer.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
 CMakeFiles/GunMayhem.dir/src/Timer.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
-CMakeFiles/GunMayhem.dir/src/Timer.cpp.obj: D:/Game/GunMayhem3/src/Timer.cpp
+CMakeFiles/GunMayhem.dir/src/Timer.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/src/Timer.cpp
 CMakeFiles/GunMayhem.dir/src/Timer.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Game\GunMayhem3\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object CMakeFiles/GunMayhem.dir/src/Timer.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/Timer.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\Timer.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\Timer.cpp.obj -c D:\Game\GunMayhem3\src\Timer.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object CMakeFiles/GunMayhem.dir/src/Timer.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/Timer.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\Timer.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\Timer.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Timer.cpp
 
 CMakeFiles/GunMayhem.dir/src/Timer.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/src/Timer.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Game\GunMayhem3\src\Timer.cpp > CMakeFiles\GunMayhem.dir\src\Timer.cpp.i
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Timer.cpp > CMakeFiles\GunMayhem.dir\src\Timer.cpp.i
 
 CMakeFiles/GunMayhem.dir/src/Timer.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/src/Timer.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Game\GunMayhem3\src\Timer.cpp -o CMakeFiles\GunMayhem.dir\src\Timer.cpp.s
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Timer.cpp -o CMakeFiles\GunMayhem.dir\src\Timer.cpp.s
 
 CMakeFiles/GunMayhem.dir/src/Vector2D.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
 CMakeFiles/GunMayhem.dir/src/Vector2D.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
-CMakeFiles/GunMayhem.dir/src/Vector2D.cpp.obj: D:/Game/GunMayhem3/src/Vector2D.cpp
+CMakeFiles/GunMayhem.dir/src/Vector2D.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/src/Vector2D.cpp
 CMakeFiles/GunMayhem.dir/src/Vector2D.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Game\GunMayhem3\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object CMakeFiles/GunMayhem.dir/src/Vector2D.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/Vector2D.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\Vector2D.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\Vector2D.cpp.obj -c D:\Game\GunMayhem3\src\Vector2D.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object CMakeFiles/GunMayhem.dir/src/Vector2D.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/Vector2D.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\Vector2D.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\Vector2D.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Vector2D.cpp
 
 CMakeFiles/GunMayhem.dir/src/Vector2D.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/src/Vector2D.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Game\GunMayhem3\src\Vector2D.cpp > CMakeFiles\GunMayhem.dir\src\Vector2D.cpp.i
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Vector2D.cpp > CMakeFiles\GunMayhem.dir\src\Vector2D.cpp.i
 
 CMakeFiles/GunMayhem.dir/src/Vector2D.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/src/Vector2D.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Game\GunMayhem3\src\Vector2D.cpp -o CMakeFiles\GunMayhem.dir\src\Vector2D.cpp.s
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Vector2D.cpp -o CMakeFiles\GunMayhem.dir\src\Vector2D.cpp.s
 
 CMakeFiles/GunMayhem.dir/src/Weapon.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
 CMakeFiles/GunMayhem.dir/src/Weapon.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
-CMakeFiles/GunMayhem.dir/src/Weapon.cpp.obj: D:/Game/GunMayhem3/src/Weapon.cpp
+CMakeFiles/GunMayhem.dir/src/Weapon.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/src/Weapon.cpp
 CMakeFiles/GunMayhem.dir/src/Weapon.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Game\GunMayhem3\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object CMakeFiles/GunMayhem.dir/src/Weapon.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/Weapon.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\Weapon.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\Weapon.cpp.obj -c D:\Game\GunMayhem3\src\Weapon.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object CMakeFiles/GunMayhem.dir/src/Weapon.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/Weapon.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\Weapon.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\Weapon.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Weapon.cpp
 
 CMakeFiles/GunMayhem.dir/src/Weapon.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/src/Weapon.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Game\GunMayhem3\src\Weapon.cpp > CMakeFiles\GunMayhem.dir\src\Weapon.cpp.i
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Weapon.cpp > CMakeFiles\GunMayhem.dir\src\Weapon.cpp.i
 
 CMakeFiles/GunMayhem.dir/src/Weapon.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/src/Weapon.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Game\GunMayhem3\src\Weapon.cpp -o CMakeFiles\GunMayhem.dir\src\Weapon.cpp.s
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\Weapon.cpp -o CMakeFiles\GunMayhem.dir\src\Weapon.cpp.s
+
+CMakeFiles/GunMayhem.dir/src/python_bindings.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
+CMakeFiles/GunMayhem.dir/src/python_bindings.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
+CMakeFiles/GunMayhem.dir/src/python_bindings.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/src/python_bindings.cpp
+CMakeFiles/GunMayhem.dir/src/python_bindings.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Building CXX object CMakeFiles/GunMayhem.dir/src/python_bindings.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/python_bindings.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\python_bindings.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\python_bindings.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\python_bindings.cpp
+
+CMakeFiles/GunMayhem.dir/src/python_bindings.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/src/python_bindings.cpp.i"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\python_bindings.cpp > CMakeFiles\GunMayhem.dir\src\python_bindings.cpp.i
+
+CMakeFiles/GunMayhem.dir/src/python_bindings.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/src/python_bindings.cpp.s"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\python_bindings.cpp -o CMakeFiles\GunMayhem.dir\src\python_bindings.cpp.s
 
 CMakeFiles/GunMayhem.dir/src/utils.cpp.obj: CMakeFiles/GunMayhem.dir/flags.make
 CMakeFiles/GunMayhem.dir/src/utils.cpp.obj: CMakeFiles/GunMayhem.dir/includes_CXX.rsp
-CMakeFiles/GunMayhem.dir/src/utils.cpp.obj: D:/Game/GunMayhem3/src/utils.cpp
+CMakeFiles/GunMayhem.dir/src/utils.cpp.obj: C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/src/utils.cpp
 CMakeFiles/GunMayhem.dir/src/utils.cpp.obj: CMakeFiles/GunMayhem.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\Game\GunMayhem3\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object CMakeFiles/GunMayhem.dir/src/utils.cpp.obj"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/utils.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\utils.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\utils.cpp.obj -c D:\Game\GunMayhem3\src\utils.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_22) "Building CXX object CMakeFiles/GunMayhem.dir/src/utils.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GunMayhem.dir/src/utils.cpp.obj -MF CMakeFiles\GunMayhem.dir\src\utils.cpp.obj.d -o CMakeFiles\GunMayhem.dir\src\utils.cpp.obj -c C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\utils.cpp
 
 CMakeFiles/GunMayhem.dir/src/utils.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GunMayhem.dir/src/utils.cpp.i"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Game\GunMayhem3\src\utils.cpp > CMakeFiles\GunMayhem.dir\src\utils.cpp.i
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\utils.cpp > CMakeFiles\GunMayhem.dir\src\utils.cpp.i
 
 CMakeFiles/GunMayhem.dir/src/utils.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GunMayhem.dir/src/utils.cpp.s"
-	C:\msys64\ucrt64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\Game\GunMayhem3\src\utils.cpp -o CMakeFiles\GunMayhem.dir\src\utils.cpp.s
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\src\utils.cpp -o CMakeFiles\GunMayhem.dir\src\utils.cpp.s
 
 # Object files for target GunMayhem
 GunMayhem_OBJECTS = \
+"CMakeFiles/GunMayhem.dir/build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.obj" \
 "CMakeFiles/GunMayhem.dir/main.cpp.obj" \
 "CMakeFiles/GunMayhem.dir/src/Bullet.cpp.obj" \
 "CMakeFiles/GunMayhem.dir/src/CollisionHandler.cpp.obj" \
@@ -392,11 +423,13 @@ GunMayhem_OBJECTS = \
 "CMakeFiles/GunMayhem.dir/src/Timer.cpp.obj" \
 "CMakeFiles/GunMayhem.dir/src/Vector2D.cpp.obj" \
 "CMakeFiles/GunMayhem.dir/src/Weapon.cpp.obj" \
+"CMakeFiles/GunMayhem.dir/src/python_bindings.cpp.obj" \
 "CMakeFiles/GunMayhem.dir/src/utils.cpp.obj"
 
 # External object files for target GunMayhem
 GunMayhem_EXTERNAL_OBJECTS =
 
+GunMayhem.exe: CMakeFiles/GunMayhem.dir/build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.obj
 GunMayhem.exe: CMakeFiles/GunMayhem.dir/main.cpp.obj
 GunMayhem.exe: CMakeFiles/GunMayhem.dir/src/Bullet.cpp.obj
 GunMayhem.exe: CMakeFiles/GunMayhem.dir/src/CollisionHandler.cpp.obj
@@ -416,15 +449,16 @@ GunMayhem.exe: CMakeFiles/GunMayhem.dir/src/TextureManager.cpp.obj
 GunMayhem.exe: CMakeFiles/GunMayhem.dir/src/Timer.cpp.obj
 GunMayhem.exe: CMakeFiles/GunMayhem.dir/src/Vector2D.cpp.obj
 GunMayhem.exe: CMakeFiles/GunMayhem.dir/src/Weapon.cpp.obj
+GunMayhem.exe: CMakeFiles/GunMayhem.dir/src/python_bindings.cpp.obj
 GunMayhem.exe: CMakeFiles/GunMayhem.dir/src/utils.cpp.obj
 GunMayhem.exe: CMakeFiles/GunMayhem.dir/build.make
 GunMayhem.exe: CMakeFiles/GunMayhem.dir/linkLibs.rsp
 GunMayhem.exe: CMakeFiles/GunMayhem.dir/objects1.rsp
 GunMayhem.exe: CMakeFiles/GunMayhem.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=D:\Game\GunMayhem3\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Linking CXX executable GunMayhem.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_23) "Linking CXX executable GunMayhem.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\GunMayhem.dir\link.txt --verbose=$(VERBOSE)
-	"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different D:/Game/GunMayhem3/libs/SDL2-2.32.8/x86_64-w64-mingw32/bin/SDL2.dll D:/Game/GunMayhem3/build
-	"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different D:/Game/GunMayhem3/libs/SDL2_ttf-2.24.0/x86_64-w64-mingw32/bin/SDL2_ttf.dll D:/Game/GunMayhem3/build
+	"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/libs/SDL2-2.32.8/x86_64-w64-mingw32/bin/SDL2.dll C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/build
+	"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/libs/SDL2_ttf-2.24.0/x86_64-w64-mingw32/bin/SDL2_ttf.dll C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/build
 
 # Rule to build all files generated by this target.
 CMakeFiles/GunMayhem.dir/build: GunMayhem.exe
@@ -435,6 +469,6 @@ CMakeFiles/GunMayhem.dir/clean:
 .PHONY : CMakeFiles/GunMayhem.dir/clean
 
 CMakeFiles/GunMayhem.dir/depend:
-	$(CMAKE_COMMAND) -E cmake_depends "MinGW Makefiles" D:\Game\GunMayhem3 D:\Game\GunMayhem3 D:\Game\GunMayhem3\build D:\Game\GunMayhem3\build D:\Game\GunMayhem3\build\CMakeFiles\GunMayhem.dir\DependInfo.cmake "--color=$(COLOR)"
+	$(CMAKE_COMMAND) -E cmake_depends "MinGW Makefiles" C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build\CMakeFiles\GunMayhem.dir\DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/GunMayhem.dir/depend
 

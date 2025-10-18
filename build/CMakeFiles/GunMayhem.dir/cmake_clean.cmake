@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/GunMayhem.dir/build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.obj"
+  "CMakeFiles/GunMayhem.dir/build_pybind/_deps/pybind11-src/tests/test_cmake_build/main.cpp.obj.d"
   "CMakeFiles/GunMayhem.dir/main.cpp.obj"
   "CMakeFiles/GunMayhem.dir/main.cpp.obj.d"
   "CMakeFiles/GunMayhem.dir/src/Bullet.cpp.obj"
@@ -37,6 +39,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/GunMayhem.dir/src/Vector2D.cpp.obj.d"
   "CMakeFiles/GunMayhem.dir/src/Weapon.cpp.obj"
   "CMakeFiles/GunMayhem.dir/src/Weapon.cpp.obj.d"
+  "CMakeFiles/GunMayhem.dir/src/python_bindings.cpp.obj"
+  "CMakeFiles/GunMayhem.dir/src/python_bindings.cpp.obj.d"
   "CMakeFiles/GunMayhem.dir/src/utils.cpp.obj"
   "CMakeFiles/GunMayhem.dir/src/utils.cpp.obj.d"
   "GunMayhem.exe"
