@@ -24,6 +24,16 @@ public:
 
     virtual const std::string getStateId() { return "PLAY"; }
 
+    // Public getters for Python bindings
+    const auto& getLayeredGameObjectsMap() const { return layeredGameObjectsMap; }
+    const auto& getPlayerControls() const { return playerControls; }
+    auto& getPlayerControlsMutable() { return playerControls; }
+    
+    // Disable keyboard input for AI-controlled players
+    void disableKeyboardForPlayer(const std::string& playerId) {
+        playerControls.erase(playerId);
+    }
+
 private:
     std::unordered_map<std::string, utils::PlayerControls> playerControls;
     std::vector<std::string> sortedPlatformsId;

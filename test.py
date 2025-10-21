@@ -37,7 +37,7 @@ def write_file_contents(root_dir, sub_dirs, root_files=None, output_file="out.tx
                     out_file.write("\n\n")
 
 # Example usage
-root = "D:/Game/GunMayhem3"
+root = "C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem"
 dirs = ["/include", "/src"]
 files = ["main.cpp"]  # files at root to include
 write_file_contents(root, dirs, files)

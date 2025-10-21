@@ -1144,7 +1144,7 @@ Pistol::Pistol(const std::string &id, const std::string &playerId, float x, floa
     : RangedWeapon(id, playerId, x, y, w, h, color, scale, rotation) {
     maxAmmo = 12;
     ammo = maxAmmo;
-    primaryFireCooldown = 0.5f;
+    primaryFireCooldown = 0.2f;
     timeSinceLastPrimaryFire = primaryFireCooldown;
     secondaryFireCooldown = 0.5f;
     timeSinceLastSecondaryFire = secondaryFireCooldown;
@@ -1501,7 +1501,7 @@ void PlayState::spawnBullet(const std::string &playerId, Weapon::FireMode mode) 
     std::string bulletId = playerId + "_bullet_" + std::to_string(SDL_GetTicks());
     SDL_Color bulletColor = {255, 255, 0, 255};
 
-    auto bullet = std::make_unique<Bullet>(bulletId, playerId, bx, by, 8, 4, bulletColor, dir, 600.0f);
+    auto bullet = std::make_unique<Bullet>(bulletId, playerId, bx, by, 8, 4, bulletColor, dir, 1000.0f);
     layeredGameObjectsMap["bullets"][bulletId] = std::move(bullet);
 }
 
@@ -1872,6 +1872,10 @@ std::unordered_map<std::string, utils::PlayerControls> utils::loadPlayerControls
         {"W", SDL_SCANCODE_W},
         {"T", SDL_SCANCODE_T},
         {"Y", SDL_SCANCODE_Y},
+        {"Z", SDL_SCANCODE_Z},
+        {"X", SDL_SCANCODE_X},
+        {"1", SDL_SCANCODE_1},
+        {"Q", SDL_SCANCODE_Q},
         {"UP", SDL_SCANCODE_UP},
         {"DOWN", SDL_SCANCODE_DOWN},
         {"LEFT", SDL_SCANCODE_LEFT},

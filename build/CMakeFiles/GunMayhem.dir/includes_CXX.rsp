@@ -1,1 +1,1 @@
--ID:/Game/GunMayhem3/include -I"D:/Game/GunMayhem3/libs/SDL2-2.32.8/x86_64-w64-mingw32/include/SDL2" -ID:/Game/GunMayhem3/libs/nlohmannjson/include -I"D:/Game/GunMayhem3/libs/SDL2_ttf-2.24.0/x86_64-w64-mingw32/include/SDL2"
+-I"C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/include" -I"C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/libs/SDL2-2.32.8/x86_64-w64-mingw32/include/SDL2" -I"C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/libs/nlohmannjson/include" -I"C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem/libs/SDL2_ttf-2.24.0/x86_64-w64-mingw32/include/SDL2"
