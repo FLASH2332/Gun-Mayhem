@@ -107,8 +107,19 @@ def main():
                 action_p2_array, _ = model.predict(obs_p2, deterministic=True)
                 
                 # 3. Convert and apply action
+                # action_p2_dict = _convert_action(action_p2_array)
+                # game_control.set_player_movement(p2_id, **action_p2_dict)
+
                 action_p2_dict = _convert_action(action_p2_array)
-                game_control.set_player_movement(p2_id, **action_p2_dict)
+                game_control.set_player_movement(
+                    p2_id, 
+                    action_p2_dict['up'],
+                    action_p2_dict['left'],
+                    action_p2_dict['down'],
+                    action_p2_dict['right'],
+                    action_p2_dict['primaryFire'],
+                    action_p2_dict['secondaryFire']
+                )
 
             # Update and render
             game.update(0.0166)

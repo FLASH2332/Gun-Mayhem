@@ -174,8 +174,27 @@ class GunMayhemEnv(gym.Env):
                 action_p2_dict = self._convert_action(np.zeros(6))
 
             # 3. Apply actions
-            self.game_control.set_player_movement(self.p1_id, **action_p1_dict)
-            self.game_control.set_player_movement(self.p2_id, **action_p2_dict)
+            # self.game_control.set_player_movement(self.p1_id, **action_p1_dict)
+            # self.game_control.set_player_movement(self.p2_id, **action_p2_dict)
+
+            self.game_control.set_player_movement(
+                self.p1_id, 
+                action_p1_dict['up'],
+                action_p1_dict['left'],
+                action_p1_dict['down'],
+                action_p1_dict['right'],
+                action_p1_dict['primaryFire'],
+                action_p1_dict['secondaryFire']
+            )
+            self.game_control.set_player_movement(
+                self.p2_id, 
+                action_p2_dict['up'],
+                action_p2_dict['left'],
+                action_p2_dict['down'],
+                action_p2_dict['right'],
+                action_p2_dict['primaryFire'],
+                action_p2_dict['secondaryFire']
+            )
 
             # 4. Step the game
             self.game.update(0.0166) # Assuming 60fps
