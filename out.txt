@@ -1,3 +1,1837 @@
+/build_python_module.bat:
+@echo off
+REM Build the Python module for Gun Mayhem
+
+if not exist build_pybind mkdir build_pybind
+cd build_pybind
+
+REM Copy the pybind CMakeLists.txt
+copy ..\CMakeLists_pybind.txt CMakeLists.txt
+
+cmake . -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+if %ERRORLEVEL% NEQ 0 (
+    echo CMake configuration failed!
+    cd ..
+    pause
+    exit /b %ERRORLEVEL%
+)
+
+mingw32-make
+if %ERRORLEVEL% NEQ 0 (
+    echo Build failed!
+    cd ..
+    pause
+    exit /b %ERRORLEVEL%
+)
+
+echo.
+echo Python module built successfully!
+echo The gunmayhem.pyd file is in the build_pybind directory
+echo.
+cd ..
+pause
+
+
+/CMakeLists.txt:
+cmake_minimum_required(VERSION 3.15)
+project(GunMayhem)
+
+# Set the C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Collect source files
+file(GLOB_RECURSE SOURCES
+    "${CMAKE_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_SOURCE_DIR}/main.cpp"
+)
+
+# Collect header files
+file(GLOB_RECURSE HEADERS
+    "${CMAKE_SOURCE_DIR}/include/*.hpp"
+)
+
+# Create the executable
+add_executable(GunMayhem ${SOURCES} ${HEADERS})
+
+# set base dirs
+set(SDL2_DIR ${CMAKE_SOURCE_DIR}/libs/SDL2-2.32.8/x86_64-w64-mingw32)
+set(JSON_DIR ${CMAKE_SOURCE_DIR}/libs/nlohmannjson)
+set(SDL2_TTF_DIR ${CMAKE_SOURCE_DIR}/libs/SDL2_ttf-2.24.0/x86_64-w64-mingw32)
+
+# Include directories
+target_include_directories(GunMayhem PRIVATE
+    ${CMAKE_SOURCE_DIR}/include
+    ${SDL2_DIR}/include/SDL2
+    ${JSON_DIR}/include
+    ${SDL2_TTF_DIR}/include/SDL2
+)
+
+# Link SDL2 libraries (no g++/MinGW specific flags)
+target_link_directories(GunMayhem PRIVATE
+    ${SDL2_DIR}/lib
+    ${SDL2_TTF_DIR}/lib
+)
+
+# Link libraries
+target_link_libraries(GunMayhem
+    SDL2
+    SDL2main
+    SDL2_ttf
+)
+
+# Optional: Copy SDL2.dll to the output directory
+add_custom_command(TARGET GunMayhem POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${SDL2_DIR}/bin/SDL2.dll
+        $<TARGET_FILE_DIR:GunMayhem>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${SDL2_TTF_DIR}/bin/SDL2_ttf.dll
+        $<TARGET_FILE_DIR:GunMayhem>
+)
+
+
+/CMakeLists_pybind.txt:
+# PyBind11 Module CMakeLists.txt
+
+cmake_minimum_required(VERSION 3.15)
+project(GunMayhemPython)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Set source directory (parent of build_pybind)
+set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
+
+# Find Python
+find_package(Python COMPONENTS Interpreter Development REQUIRED)
+
+# Download pybind11 if not found
+include(FetchContent)
+FetchContent_Declare(
+    pybind11
+    GIT_REPOSITORY https://github.com/pybind/pybind11.git
+    GIT_TAG v2.11.1
+)
+FetchContent_MakeAvailable(pybind11)
+
+# Collect source files (exclude main.cpp for the module)
+file(GLOB_RECURSE LIB_SOURCES
+    "${SOURCE_DIR}/src/*.cpp"
+)
+list(REMOVE_ITEM LIB_SOURCES "${SOURCE_DIR}/src/python_bindings.cpp")
+list(REMOVE_ITEM LIB_SOURCES "${SOURCE_DIR}/main.cpp")
+
+# SDL2 setup
+set(SDL2_DIR ${SOURCE_DIR}/libs/SDL2-2.32.8/x86_64-w64-mingw32)
+set(JSON_DIR ${SOURCE_DIR}/libs/nlohmannjson)
+set(SDL2_TTF_DIR ${SOURCE_DIR}/libs/SDL2_ttf-2.24.0/x86_64-w64-mingw32)
+
+# Create Python module
+pybind11_add_module(gunmayhem 
+    ${SOURCE_DIR}/src/python_bindings.cpp
+    ${LIB_SOURCES}
+)
+
+# Include directories
+target_include_directories(gunmayhem PRIVATE
+    ${SOURCE_DIR}/include
+    ${SDL2_DIR}/include/SDL2
+    ${JSON_DIR}/include
+    ${SDL2_TTF_DIR}/include/SDL2
+)
+
+# Link SDL2 libraries
+target_link_directories(gunmayhem PRIVATE
+    ${SDL2_DIR}/lib
+    ${SDL2_TTF_DIR}/lib
+)
+
+target_link_libraries(gunmayhem PRIVATE
+    SDL2
+    SDL2main
+    SDL2_ttf
+)
+
+# Copy DLLs to output directory
+add_custom_command(TARGET gunmayhem POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${SDL2_DIR}/bin/SDL2.dll
+        $<TARGET_FILE_DIR:gunmayhem>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${SDL2_TTF_DIR}/bin/SDL2_ttf.dll
+        $<TARGET_FILE_DIR:gunmayhem>
+)
+
+
+/evolvable_fuzzy_ai.py:
+"""
+Evolvable Fuzzy AI - Uses genome parameters
+
+This is a wrapper around the existing FuzzyAI that accepts
+genome parameters for genetic algorithm evolution.
+
+Does NOT modify the original fuzzy_ai.py file!
+"""
+
+import sys
+import os
+
+# Import the original fuzzy AI
+from fuzzy_ai import FuzzyAI, SimpleFuzzyAI, FUZZY_AVAILABLE
+from fuzzy_genome import FuzzyGenome
+
+if FUZZY_AVAILABLE:
+    import numpy as np
+    import skfuzzy as fuzz
+    from skfuzzy import control as ctrl
+
+
+class EvolvableFuzzyAI:
+    """
+    Fuzzy AI that uses genome parameters.
+    Wraps the existing fuzzy logic but allows parameters to be evolved.
+    """
+    
+    def __init__(self, genome: FuzzyGenome = None):
+        """
+        Initialize with a genome.
+        
+        Args:
+            genome: FuzzyGenome object with evolved parameters.
+                   If None, uses default parameters.
+        """
+        self.genome = genome if genome else FuzzyGenome()
+        
+        if not FUZZY_AVAILABLE:
+            self.fallback_ai = SimpleFuzzyAI()
+            return
+        
+        # Initialize fuzzy variables with genome parameters
+        self._setup_fuzzy_variables()
+        self._setup_membership_functions()
+        self._setup_rules()
+        self._create_control_systems()
+        
+        # Jump tracking (from original FuzzyAI)
+        self.last_jump_command = False
+        self.jump_frames = 0
+        self.max_jump_frames = int(self.genome.genes['jump_frames'])
+    
+    def _setup_fuzzy_variables(self):
+        """Define fuzzy variables (same as original)"""
+        self.distance = ctrl.Antecedent(np.arange(0, 1301, 1), 'distance')
+        self.health = ctrl.Antecedent(np.arange(0, 101, 1), 'health')
+        self.enemy_health = ctrl.Antecedent(np.arange(0, 101, 1), 'enemy_health')
+        self.height_diff = ctrl.Antecedent(np.arange(-400, 401, 1), 'height_diff')
+        
+        self.aggression = ctrl.Consequent(np.arange(0, 101, 1), 'aggression')
+        self.should_jump = ctrl.Consequent(np.arange(0, 101, 1), 'should_jump')
+    
+    def _setup_membership_functions(self):
+        """Define membership functions using GENOME PARAMETERS"""
+        g = self.genome.genes  # Shorthand
+        
+        # Distance - evolved parameters!
+        self.distance['close'] = fuzz.trimf(
+            self.distance.universe, 
+            [0, 0, g['distance_close_max']]
+        )
+        self.distance['medium'] = fuzz.trimf(
+            self.distance.universe,
+            [g['distance_medium_min'], 
+             (g['distance_medium_min'] + g['distance_medium_max']) / 2,
+             g['distance_medium_max']]
+        )
+        self.distance['far'] = fuzz.trimf(
+            self.distance.universe,
+            [g['distance_far_min'], 1000, 1300]
+        )
+        
+        # Health - evolved parameters!
+        self.health['low'] = fuzz.trimf(
+            self.health.universe,
+            [0, 0, g['health_low_max']]
+        )
+        self.health['medium'] = fuzz.trimf(
+            self.health.universe,
+            [g['health_medium_min'], 50, g['health_medium_max']]
+        )
+        self.health['high'] = fuzz.trimf(
+            self.health.universe,
+            [g['health_high_min'], 100, 100]
+        )
+        
+        # Enemy health (same structure)
+        self.enemy_health['low'] = fuzz.trimf(self.enemy_health.universe, [0, 0, 40])
+        self.enemy_health['medium'] = fuzz.trimf(self.enemy_health.universe, [30, 50, 70])
+        self.enemy_health['high'] = fuzz.trimf(self.enemy_health.universe, [60, 100, 100])
+        
+        # Height difference - evolved parameters!
+        height_same = g['height_same_range']
+        self.height_diff['below'] = fuzz.trimf(
+            self.height_diff.universe,
+            [-400, -400, g['height_below_max']]
+        )
+        self.height_diff['same'] = fuzz.trimf(
+            self.height_diff.universe,
+            [-height_same/2, 0, height_same/2]
+        )
+        self.height_diff['above'] = fuzz.trimf(
+            self.height_diff.universe,
+            [g['height_above_min'], 400, 400]
+        )
+        
+        # Aggression output
+        self.aggression['defensive'] = fuzz.trimf(self.aggression.universe, [0, 0, 40])
+        self.aggression['balanced'] = fuzz.trimf(self.aggression.universe, [30, 50, 70])
+        self.aggression['aggressive'] = fuzz.trimf(self.aggression.universe, [60, 100, 100])
+        
+        # Jump output
+        self.should_jump['no'] = fuzz.trimf(self.should_jump.universe, [0, 0, 30])
+        self.should_jump['maybe'] = fuzz.trimf(self.should_jump.universe, [20, 50, 80])
+        self.should_jump['yes'] = fuzz.trimf(self.should_jump.universe, [70, 100, 100])
+    
+    def _setup_rules(self):
+        """Define fuzzy rules (same as original)"""
+        # Aggression rules
+        self.rule1 = ctrl.Rule(self.health['low'], self.aggression['defensive'])
+        self.rule2 = ctrl.Rule(self.health['high'] & self.enemy_health['low'], self.aggression['aggressive'])
+        self.rule3 = ctrl.Rule(self.distance['close'] & self.health['high'], self.aggression['aggressive'])
+        self.rule4 = ctrl.Rule(self.distance['far'], self.aggression['balanced'])
+        
+        # Jump rules
+        self.rule5 = ctrl.Rule(self.height_diff['below'], self.should_jump['yes'])
+        self.rule6 = ctrl.Rule(self.height_diff['above'], self.should_jump['no'])
+        self.rule7 = ctrl.Rule(self.health['low'] & self.distance['close'], self.should_jump['yes'])
+        self.rule8 = ctrl.Rule(self.distance['medium'], self.should_jump['maybe'])
+    
+    def _create_control_systems(self):
+        """Create control systems"""
+        self.aggression_ctrl = ctrl.ControlSystem([self.rule1, self.rule2, self.rule3, self.rule4])
+        self.jump_ctrl = ctrl.ControlSystem([self.rule5, self.rule6, self.rule7, self.rule8])
+        
+        self.aggression_sim = ctrl.ControlSystemSimulation(self.aggression_ctrl)
+        self.jump_sim = ctrl.ControlSystemSimulation(self.jump_ctrl)
+    
+    def _get_platform_navigation(self, ai_state, enemy_state):
+        """Platform navigation with evolved parameters"""
+        ai_x, ai_y = ai_state['x'], ai_state['y']
+        enemy_x, enemy_y = enemy_state['x'], enemy_state['y']
+        
+        g = self.genome.genes
+        platform_tolerance = g['platform_y_tolerance']
+        jump_zone = g['jump_zone_width']
+        
+        # Platform definitions
+        PLATFORMS = [
+            {'id': 'top', 'x1': 280, 'x2': 680, 'y': 300},
+            {'id': 'bottom_left', 'x1': 100, 'x2': 400, 'y': 430},
+            {'id': 'bottom_right', 'x1': 600, 'x2': 900, 'y': 430},
+        ]
+        
+        # Detect platforms
+        ai_platform = None
+        enemy_platform = None
+        
+        for plat in PLATFORMS:
+            if plat['x1'] <= ai_x <= plat['x2'] and abs(ai_y - plat['y']) < platform_tolerance:
+                ai_platform = plat
+            if plat['x1'] <= enemy_x <= plat['x2'] and abs(enemy_y - plat['y']) < platform_tolerance:
+                enemy_platform = plat
+        
+        move_left = ai_x > enemy_x
+        move_right = ai_x < enemy_x
+        should_jump = False
+        needs_double_jump = False
+        
+        if ai_platform and enemy_platform and ai_platform['id'] != enemy_platform['id']:
+            if ai_platform['id'] in ['bottom_left', 'bottom_right'] and enemy_platform['id'] == 'top':
+                needs_double_jump = True
+                top_center_x = (PLATFORMS[0]['x1'] + PLATFORMS[0]['x2']) / 2
+                
+                if ai_x < PLATFORMS[0]['x1'] - 50:
+                    move_left = False
+                    move_right = True
+                    if PLATFORMS[0]['x1'] - jump_zone <= ai_x <= PLATFORMS[0]['x1'] - 20:
+                        should_jump = True
+                elif ai_x > PLATFORMS[0]['x2'] + 50:
+                    move_left = True
+                    move_right = False
+                    if PLATFORMS[0]['x2'] + 20 <= ai_x <= PLATFORMS[0]['x2'] + jump_zone:
+                        should_jump = True
+                else:
+                    should_jump = True
+                    move_left = ai_x > top_center_x
+                    move_right = ai_x < top_center_x
+            
+            elif ai_platform['id'] == 'top' and enemy_platform['id'] in ['bottom_left', 'bottom_right']:
+                if enemy_platform['id'] == 'bottom_left':
+                    edge_x = PLATFORMS[0]['x1'] + 50
+                    move_left = ai_x > edge_x
+                    move_right = ai_x < edge_x
+                    if ai_x <= PLATFORMS[0]['x1'] + 30:
+                        should_jump = True
+                        move_left = True
+                else:
+                    edge_x = PLATFORMS[0]['x2'] - 50
+                    move_left = ai_x > edge_x
+                    move_right = ai_x < edge_x
+                    if ai_x >= PLATFORMS[0]['x2'] - 30:
+                        should_jump = True
+                        move_right = True
+            
+            elif ai_platform['id'] == 'bottom_left' and enemy_platform['id'] == 'bottom_right':
+                needs_double_jump = True
+                if ai_x < PLATFORMS[0]['x1'] - 80:
+                    move_right = True
+                    move_left = False
+                elif PLATFORMS[0]['x1'] - jump_zone <= ai_x <= PLATFORMS[0]['x1'] - 20:
+                    should_jump = True
+                    move_right = True
+            
+            elif ai_platform['id'] == 'bottom_right' and enemy_platform['id'] == 'bottom_left':
+                needs_double_jump = True
+                if ai_x > PLATFORMS[0]['x2'] + 80:
+                    move_left = True
+                    move_right = False
+                elif PLATFORMS[0]['x2'] + 20 <= ai_x <= PLATFORMS[0]['x2'] + jump_zone:
+                    should_jump = True
+                    move_left = True
+        
+        elif not ai_platform:
+            move_left = ai_x > enemy_x
+            move_right = ai_x < enemy_x
+            should_jump = ai_y > enemy_y
+        
+        return move_left, move_right, should_jump, needs_double_jump
+    
+    def decide_action(self, ai_state, enemy_state, platforms=None):
+        """Make decision using genome parameters"""
+        if not FUZZY_AVAILABLE:
+            return self.fallback_ai.decide_action(ai_state, enemy_state)
+        
+        g = self.genome.genes
+        
+        distance = abs(ai_state['x'] - enemy_state['x'])
+        height_diff = ai_state['y'] - enemy_state['y']
+        
+        # Platform navigation
+        nav_left, nav_right, nav_jump, needs_double_jump = self._get_platform_navigation(ai_state, enemy_state)
+        
+        # Fuzzy logic
+        try:
+            self.aggression_sim.input['distance'] = min(distance, 1300)
+            self.aggression_sim.input['health'] = ai_state['health']
+            self.aggression_sim.input['enemy_health'] = enemy_state['health']
+            self.aggression_sim.compute()
+            aggression = self.aggression_sim.output['aggression']
+        except:
+            aggression = 50.0
+        
+        try:
+            self.jump_sim.input['height_diff'] = max(-400, min(400, height_diff))
+            self.jump_sim.input['health'] = ai_state['health']
+            self.jump_sim.input['distance'] = min(distance, 1300)
+            self.jump_sim.compute()
+            fuzzy_jump_desire = self.jump_sim.output['should_jump']
+        except:
+            fuzzy_jump_desire = 50.0
+        
+        # Double jump handling
+        if needs_double_jump and nav_jump:
+            if not self.last_jump_command:
+                self.jump_frames = 0
+            self.jump_frames += 1
+            should_jump = self.jump_frames <= self.max_jump_frames
+            self.last_jump_command = should_jump
+        else:
+            should_jump = nav_jump or (fuzzy_jump_desire > g['fuzzy_jump_threshold'] and abs(height_diff) < 80)
+            self.last_jump_command = should_jump
+            if not should_jump:
+                self.jump_frames = 0
+        
+        # Movement
+        move_left = nav_left
+        move_right = nav_right
+        
+        # Combat using evolved parameters
+        can_shoot = abs(height_diff) < g['shoot_height_diff_max'] and distance < g['shoot_distance_max']
+        
+        return {
+            'up': should_jump,
+            'left': move_left,
+            'right': move_right,
+            'down': False,
+            'primaryFire': can_shoot and aggression > g['aggression_threshold'],
+            'secondaryFire': can_shoot and aggression > g['secondary_fire_threshold']
+        }
+
+
+/fuzzy_ai.py:
+"""
+Fuzzy Logic AI Controller for Gun Mayhem
+Uses scikit-fuzzy to make intelligent decisions based on game state
+"""
+
+import numpy as np
+
+# Try to import scikit-fuzzy
+try:
+    import skfuzzy as fuzz
+    from skfuzzy import control as ctrl
+    FUZZY_AVAILABLE = True
+except ImportError:
+    FUZZY_AVAILABLE = False
+    print("WARNING: scikit-fuzzy not installed. Install with: pip install scikit-fuzzy")
+
+
+class SimpleFuzzyAI:
+    """
+    Simple rule-based AI fallback if scikit-fuzzy is not available
+    Includes basic platform navigation logic with double jump support
+    """
+    def __init__(self):
+        self.jump_frames = 0
+        self.max_jump_frames = 20  # Keep jumping for ~0.33 seconds
+        self.last_jump_command = False
+    
+    def _check_platform_level(self, y_pos):
+        """Determine which platform level the position is on"""
+        if abs(y_pos - 300) < 100:
+            return 'top'
+        elif abs(y_pos - 430) < 100:
+            return 'bottom'
+        return 'airborne'
+    
+    def decide_action(self, ai_state, enemy_state):
+        """
+        Simple rule-based decision making with basic platform navigation
+        Platform height (130px) requires DOUBLE JUMP (single jump = 128px)
+        
+        Args:
+            ai_state: Dictionary with AI player state (health, position, etc.)
+            enemy_state: Dictionary with enemy player state
+            
+        Returns:
+            Dictionary with boolean actions (up, left, right, down, primaryFire, secondaryFire)
+        """
+        ai_x, ai_y = ai_state['x'], ai_state['y']
+        enemy_x, enemy_y = enemy_state['x'], enemy_state['y']
+        
+        distance = abs(ai_x - enemy_x)
+        height_diff = ai_y - enemy_y
+        health_ratio = ai_state['health'] / 100.0
+        
+        # Determine platform levels
+        ai_level = self._check_platform_level(ai_y)
+        enemy_level = self._check_platform_level(enemy_y)
+        
+        # Default movement: towards enemy
+        move_left = ai_x > enemy_x
+        move_right = ai_x < enemy_x
+        should_jump = False
+        needs_double_jump = False
+        
+        # Platform-aware navigation
+        if ai_level == 'bottom' and enemy_level == 'top':
+            needs_double_jump = True  # 130px height needs double jump!
+            # Need to jump up - move towards center gap
+            if ai_x < 260:  # Too far left
+                move_right = True
+                move_left = False
+            elif ai_x > 700:  # Too far right
+                move_left = True
+                move_right = False
+            # Jump when in position (keep jumping to trigger double jump)
+            if 260 <= ai_x <= 700:
+                should_jump = True
+                
+        elif ai_level == 'top' and enemy_level == 'bottom':
+            # Need to drop down - move to edge
+            if enemy_x < 480:  # Enemy on left side
+                move_left = ai_x > 300
+                move_right = ai_x < 300
+            else:  # Enemy on right side
+                move_left = ai_x > 650
+                move_right = ai_x < 650
+        
+        else:
+            # Same level or airborne - basic navigation
+            should_jump = height_diff > 50
+            move_left = ai_x > enemy_x
+            move_right = ai_x < enemy_x
+        
+        # Handle double jump - keep jump button pressed for multiple frames
+        if needs_double_jump and should_jump:
+            if not self.last_jump_command:
+                self.jump_frames = 0  # Start new jump sequence
+            self.jump_frames += 1
+            should_jump = self.jump_frames <= self.max_jump_frames
+            self.last_jump_command = should_jump
+        else:
+            self.last_jump_command = should_jump
+            if not should_jump:
+                self.jump_frames = 0
+        
+        # Combat decisions
+        should_shoot = distance < 400 and abs(height_diff) < 100
+        aggressive = health_ratio > 0.5
+        
+        return {
+            'up': should_jump,
+            'left': move_left,
+            'right': move_right,
+            'down': False,
+            'primaryFire': should_shoot and aggressive,
+            'secondaryFire': should_shoot and aggressive and distance < 200
+        }
+
+
+class FuzzyAI:
+    """
+    Advanced Fuzzy Logic AI Controller
+    Uses scikit-fuzzy to make intelligent decisions based on:
+    - Distance to enemy
+    - Player health
+    - Enemy health
+    - Height difference
+    """
+    
+    def __init__(self):
+        if not FUZZY_AVAILABLE:
+            self.fallback_ai = SimpleFuzzyAI()
+            return
+        
+        self._setup_fuzzy_variables()
+        self._setup_membership_functions()
+        self._setup_rules()
+        self._create_control_systems()
+        
+        # Track jumping state for double jumps
+        self.last_jump_command = False
+        self.jump_frames = 0  # Frames since jump started
+        self.max_jump_frames = 20  # Keep jumping for ~0.33 seconds to ensure double jump
+    
+    def _setup_fuzzy_variables(self):
+        """
+        Define fuzzy input and output variables
+        
+        Parameter reasoning based on game mechanics:
+        - distance: 0-1300 (screen width = 1280px)
+        - health: 0-100 (matches maxHealth in Player.hpp)
+        - enemy_health: 0-100 (same as above)
+        - height_diff: -400 to 400 (max jump height ~256px, platform spacing ~130px)
+        
+        Game mechanics reference:
+        - Player speed: 300 units/sec
+        - Bullet speed: 1000 units/sec
+        - Jump speed: 800 units/sec with gravity 2500
+        - Max jump height: ~128px per jump, 256px with double jump
+        """
+        # Input variables
+        self.distance = ctrl.Antecedent(np.arange(0, 1301, 1), 'distance')  # Covers full screen width
+        self.health = ctrl.Antecedent(np.arange(0, 101, 1), 'health')
+        self.enemy_health = ctrl.Antecedent(np.arange(0, 101, 1), 'enemy_health')
+        self.height_diff = ctrl.Antecedent(np.arange(-400, 401, 1), 'height_diff')  # Realistic vertical range
+        
+        # Output variables
+        self.aggression = ctrl.Consequent(np.arange(0, 101, 1), 'aggression')
+        self.should_jump = ctrl.Consequent(np.arange(0, 101, 1), 'should_jump')
+    
+    def _setup_membership_functions(self):
+        """
+        Define membership functions for fuzzy variables
+        
+        Distance thresholds based on combat mechanics:
+        - close (0-350): Optimal shooting range (bullet travel time ~0.35s)
+        - medium (250-700): Mid-range combat zone
+        - far (600-1300): Long-range, harder to hit moving targets
+        
+        Height thresholds based on jump mechanics:
+        - below (-400 to -60): Need to jump to reach enemy (jump height ~128-256px)
+        - same (-80 to 80): Same platform level (±player height ~64px)
+        - above (60 to 400): Enemy is lower, no jump needed
+        """
+        # Distance membership functions (optimized for 1000 units/sec bullet speed)
+        self.distance['close'] = fuzz.trimf(self.distance.universe, [0, 0, 350])      # Point-blank to effective range
+        self.distance['medium'] = fuzz.trimf(self.distance.universe, [250, 500, 700])  # Mid-range combat
+        self.distance['far'] = fuzz.trimf(self.distance.universe, [600, 1000, 1300])   # Long-range
+        
+        # Health membership functions (standard thresholds)
+        self.health['low'] = fuzz.trimf(self.health.universe, [0, 0, 40])
+        self.health['medium'] = fuzz.trimf(self.health.universe, [30, 50, 70])
+        self.health['high'] = fuzz.trimf(self.health.universe, [60, 100, 100])
+        
+        # Enemy health membership functions
+        self.enemy_health['low'] = fuzz.trimf(self.enemy_health.universe, [0, 0, 40])
+        self.enemy_health['medium'] = fuzz.trimf(self.enemy_health.universe, [30, 50, 70])
+        self.enemy_health['high'] = fuzz.trimf(self.enemy_health.universe, [60, 100, 100])
+        
+        # Height difference (based on jump height ~128px and platform spacing)
+        self.height_diff['below'] = fuzz.trimf(self.height_diff.universe, [-400, -400, -60])  # Enemy significantly higher
+        self.height_diff['same'] = fuzz.trimf(self.height_diff.universe, [-80, 0, 80])        # Same level (±player height)
+        self.height_diff['above'] = fuzz.trimf(self.height_diff.universe, [60, 400, 400])     # Enemy lower
+        
+        # Aggression membership functions (tactical behavior)
+        self.aggression['defensive'] = fuzz.trimf(self.aggression.universe, [0, 0, 40])
+        self.aggression['balanced'] = fuzz.trimf(self.aggression.universe, [30, 50, 70])
+        self.aggression['aggressive'] = fuzz.trimf(self.aggression.universe, [60, 100, 100])
+        
+        # Jump membership functions
+        self.should_jump['no'] = fuzz.trimf(self.should_jump.universe, [0, 0, 30])
+        self.should_jump['maybe'] = fuzz.trimf(self.should_jump.universe, [20, 50, 80])
+        self.should_jump['yes'] = fuzz.trimf(self.should_jump.universe, [70, 100, 100])
+    
+    def _setup_rules(self):
+        """Define fuzzy logic rules"""
+        # Aggression rules
+        self.rule1 = ctrl.Rule(self.health['low'], self.aggression['defensive'])
+        self.rule2 = ctrl.Rule(self.health['high'] & self.enemy_health['low'], self.aggression['aggressive'])
+        self.rule3 = ctrl.Rule(self.distance['close'] & self.health['high'], self.aggression['aggressive'])
+        self.rule4 = ctrl.Rule(self.distance['far'], self.aggression['balanced'])
+        
+        # Jump rules
+        self.rule5 = ctrl.Rule(self.height_diff['below'], self.should_jump['yes'])
+        self.rule6 = ctrl.Rule(self.height_diff['above'], self.should_jump['no'])
+        self.rule7 = ctrl.Rule(self.health['low'] & self.distance['close'], self.should_jump['yes'])
+        self.rule8 = ctrl.Rule(self.distance['medium'], self.should_jump['maybe'])
+    
+    def _create_control_systems(self):
+        """Create and initialize control systems"""
+        self.aggression_ctrl = ctrl.ControlSystem([self.rule1, self.rule2, self.rule3, self.rule4])
+        self.jump_ctrl = ctrl.ControlSystem([self.rule5, self.rule6, self.rule7, self.rule8])
+        
+        self.aggression_sim = ctrl.ControlSystemSimulation(self.aggression_ctrl)
+        self.jump_sim = ctrl.ControlSystemSimulation(self.jump_ctrl)
+    
+    def _get_platform_navigation(self, ai_state, enemy_state, platforms=None):
+        """
+        Platform-aware navigation logic
+        
+        Handles multi-level navigation by detecting:
+        1. If AI and enemy are on different vertical levels
+        2. Where AI needs to move to reach the enemy's level
+        3. When to jump to change levels
+        
+        Platform layout (hardcoded for now):
+        - Top level: Platform1 at x=280-680, y=300
+        - Bottom level: Platform2 at x=100-400, y=430 (left)
+        - Bottom level: Platform3 at x=600-900, y=430 (right)
+        """
+        ai_x, ai_y = ai_state['x'], ai_state['y']
+        enemy_x, enemy_y = enemy_state['x'], enemy_state['y']
+        
+        # Platform definitions (from gameConfig.json)
+        PLATFORMS = [
+            {'id': 'top', 'x1': 280, 'x2': 680, 'y': 300},      # Top middle platform
+            {'id': 'bottom_left', 'x1': 100, 'x2': 400, 'y': 430},   # Bottom left
+            {'id': 'bottom_right', 'x1': 600, 'x2': 900, 'y': 430},  # Bottom right
+        ]
+        
+        # Determine which platform AI is on/near
+        ai_platform = None
+        enemy_platform = None
+        
+        for plat in PLATFORMS:
+            # Check if AI is on this platform (within x range, near y level)
+            if plat['x1'] <= ai_x <= plat['x2'] and abs(ai_y - plat['y']) < 100:
+                ai_platform = plat
+            # Check if enemy is on this platform
+            if plat['x1'] <= enemy_x <= plat['x2'] and abs(enemy_y - plat['y']) < 100:
+                enemy_platform = plat
+        
+        # Default navigation: move towards enemy
+        move_left = ai_x > enemy_x
+        move_right = ai_x < enemy_x
+        should_jump = False
+        needs_double_jump = False  # Flag for situations requiring double jump
+        
+        # If on different platforms, navigate intelligently
+        if ai_platform and enemy_platform and ai_platform['id'] != enemy_platform['id']:
+            
+            # CASE 1: AI on bottom, enemy on top (REQUIRES DOUBLE JUMP - 130px height > 128px single jump)
+            if ai_platform['id'] in ['bottom_left', 'bottom_right'] and enemy_platform['id'] == 'top':
+                needs_double_jump = True  # 130px height requires double jump!
+                
+                # Move towards the center gap to jump up
+                top_center_x = (PLATFORMS[0]['x1'] + PLATFORMS[0]['x2']) / 2  # x=480
+                
+                # Navigate towards position under the top platform
+                if ai_x < PLATFORMS[0]['x1'] - 50:  # Too far left
+                    move_left = False
+                    move_right = True
+                    # Start jumping when getting close
+                    if PLATFORMS[0]['x1'] - 100 <= ai_x <= PLATFORMS[0]['x1'] - 20:
+                        should_jump = True
+                        
+                elif ai_x > PLATFORMS[0]['x2'] + 50:  # Too far right
+                    move_left = True
+                    move_right = False
+                    # Start jumping when getting close
+                    if PLATFORMS[0]['x2'] + 20 <= ai_x <= PLATFORMS[0]['x2'] + 100:
+                        should_jump = True
+                        
+                else:  # In range of top platform - DOUBLE JUMP to reach it
+                    should_jump = True
+                    # Fine-tune horizontal movement while jumping
+                    move_left = ai_x > top_center_x
+                    move_right = ai_x < top_center_x
+            
+            # CASE 2: AI on top, enemy on bottom
+            elif ai_platform['id'] == 'top' and enemy_platform['id'] in ['bottom_left', 'bottom_right']:
+                # Determine which bottom platform enemy is on
+                if enemy_platform['id'] == 'bottom_left':
+                    # Move towards left edge of top platform
+                    edge_x = PLATFORMS[0]['x1'] + 50  # x=330
+                    move_left = ai_x > edge_x
+                    move_right = ai_x < edge_x
+                    
+                    # Jump off when near left edge
+                    if ai_x <= PLATFORMS[0]['x1'] + 30:
+                        should_jump = True  # Will fall to bottom left
+                        move_left = True
+                        
+                else:  # enemy on bottom_right
+                    # Move towards right edge of top platform
+                    edge_x = PLATFORMS[0]['x2'] - 50  # x=630
+                    move_left = ai_x > edge_x
+                    move_right = ai_x < edge_x
+                    
+                    # Jump off when near right edge
+                    if ai_x >= PLATFORMS[0]['x2'] - 30:
+                        should_jump = True  # Will fall to bottom right
+                        move_right = True
+            
+            # CASE 3: AI on one bottom platform, enemy on the other
+            elif ai_platform['id'] == 'bottom_left' and enemy_platform['id'] == 'bottom_right':
+                needs_double_jump = True  # Need double jump to reach top platform
+                # Need to go through top platform
+                # First, get to position where we can jump up
+                if ai_x < PLATFORMS[0]['x1'] - 80:
+                    move_right = True
+                    move_left = False
+                elif PLATFORMS[0]['x1'] - 100 <= ai_x <= PLATFORMS[0]['x1'] - 20:
+                    should_jump = True
+                    move_right = True
+                    
+            elif ai_platform['id'] == 'bottom_right' and enemy_platform['id'] == 'bottom_left':
+                needs_double_jump = True  # Need double jump to reach top platform
+                # Need to go through top platform
+                if ai_x > PLATFORMS[0]['x2'] + 80:
+                    move_left = True
+                    move_right = False
+                elif PLATFORMS[0]['x2'] + 20 <= ai_x <= PLATFORMS[0]['x2'] + 100:
+                    should_jump = True
+                    move_left = True
+        
+        # If not on a platform (falling/jumping), use basic navigation
+        elif not ai_platform:
+            move_left = ai_x > enemy_x
+            move_right = ai_x < enemy_x
+            should_jump = ai_y > enemy_y  # Jump if below enemy
+        
+        return move_left, move_right, should_jump, needs_double_jump
+    
+    def decide_action(self, ai_state, enemy_state, platforms=None):
+        """
+        Make decision based on current game state using fuzzy logic + platform navigation
+        
+        Args:
+            ai_state: Dictionary with AI player state
+                - x, y: Position
+                - health: Current health (0-100)
+                - lives: Remaining lives
+            enemy_state: Dictionary with enemy player state (same structure)
+            platforms: Optional platform data (not used yet, hardcoded for now)
+            
+        Returns:
+            Dictionary with boolean actions:
+                - up: Jump
+                - left: Move left
+                - right: Move right
+                - down: Move down
+                - primaryFire: Shoot primary weapon
+                - secondaryFire: Shoot secondary weapon
+        """
+        if not FUZZY_AVAILABLE:
+            return self.fallback_ai.decide_action(ai_state, enemy_state)
+        
+        # Calculate inputs
+        distance = abs(ai_state['x'] - enemy_state['x'])
+        height_diff = ai_state['y'] - enemy_state['y']
+        
+        # Get platform-aware navigation (now returns 4 values including double jump flag)
+        nav_left, nav_right, nav_jump, needs_double_jump = self._get_platform_navigation(ai_state, enemy_state, platforms)
+        
+        # Compute fuzzy logic for combat decisions
+        try:
+            self.aggression_sim.input['distance'] = min(distance, 1300)
+            self.aggression_sim.input['health'] = ai_state['health']
+            self.aggression_sim.input['enemy_health'] = enemy_state['health']
+            self.aggression_sim.compute()
+            aggression = self.aggression_sim.output['aggression']
+        except:
+            aggression = 50.0
+        
+        # Compute fuzzy logic for jump desire (for fine-tuning)
+        try:
+            self.jump_sim.input['height_diff'] = max(-400, min(400, height_diff))
+            self.jump_sim.input['health'] = ai_state['health']
+            self.jump_sim.input['distance'] = min(distance, 1300)
+            self.jump_sim.compute()
+            fuzzy_jump_desire = self.jump_sim.output['should_jump']
+        except:
+            fuzzy_jump_desire = 50.0
+        
+        # Handle double jump logic for reaching platforms
+        if needs_double_jump and nav_jump:
+            # Start or continue jump sequence
+            if not self.last_jump_command:
+                # Starting new jump
+                self.jump_frames = 0
+            self.jump_frames += 1
+            
+            # Keep jump pressed for multiple frames to ensure double jump triggers
+            should_jump = self.jump_frames <= self.max_jump_frames
+            self.last_jump_command = should_jump
+        else:
+            # Normal jump logic
+            should_jump = nav_jump or (fuzzy_jump_desire > 60 and abs(height_diff) < 80)
+            self.last_jump_command = should_jump
+            if not should_jump:
+                self.jump_frames = 0  # Reset counter when not jumping
+        
+        # Use platform navigation for movement
+        move_left = nav_left
+        move_right = nav_right
+        
+        # Shoot when on same level or close enough
+        can_shoot = abs(height_diff) < 100 and distance < 500
+        
+        return {
+            'up': should_jump,
+            'left': move_left,
+            'right': move_right,
+            'down': False,
+            'primaryFire': can_shoot and aggression > 40,
+            'secondaryFire': can_shoot and aggression > 70
+        }
+    
+    def get_fuzzy_state(self, ai_state, enemy_state):
+        """
+        Get the fuzzy logic state for debugging/visualization
+        
+        Returns:
+            Dictionary with aggression and jump_desire values
+        """
+        if not FUZZY_AVAILABLE:
+            return {'aggression': 50.0, 'jump_desire': 50.0}
+        
+        distance = abs(ai_state['x'] - enemy_state['x'])
+        height_diff = ai_state['y'] - enemy_state['y']
+        
+        try:
+            self.aggression_sim.input['distance'] = min(distance, 1000)
+            self.aggression_sim.input['health'] = ai_state['health']
+            self.aggression_sim.input['enemy_health'] = enemy_state['health']
+            self.aggression_sim.compute()
+            aggression = self.aggression_sim.output['aggression']
+        except:
+            aggression = 50.0
+        
+        try:
+            self.jump_sim.input['height_diff'] = max(-500, min(500, height_diff))
+            self.jump_sim.input['health'] = ai_state['health']
+            self.jump_sim.input['distance'] = min(distance, 1000)
+            self.jump_sim.compute()
+            jump_desire = self.jump_sim.output['should_jump']
+        except:
+            jump_desire = 50.0
+        
+        return {
+            'aggression': aggression,
+            'jump_desire': jump_desire,
+            'distance': distance,
+            'height_diff': height_diff
+        }
+
+
+/fuzzy_genome.py:
+"""
+Fuzzy AI Genome for Genetic Algorithm Evolution
+
+This file defines the genome structure for evolving fuzzy logic AI parameters.
+Each genome contains tunable parameters that control the fuzzy AI's behavior.
+"""
+
+import random
+import json
+from typing import Dict, Any
+
+
+class FuzzyGenome:
+    """
+    Represents a genome for fuzzy logic AI parameters.
+    Each parameter can be evolved through genetic algorithm.
+    """
+    
+    def __init__(self, genome_dict: Dict[str, float] = None):
+        """
+        Initialize genome with parameters.
+        
+        Args:
+            genome_dict: Optional dictionary of parameter values.
+                        If None, creates random genome.
+        """
+        if genome_dict:
+            self.genes = genome_dict.copy()
+        else:
+            self.genes = self._create_random_genome()
+        
+        # Track fitness scores
+        self.fitness = 0.0
+        self.wins = 0
+        self.losses = 0
+        self.matches_played = 0
+    
+    def _create_random_genome(self) -> Dict[str, float]:
+        """Create random genome with all parameters within valid ranges"""
+        return {
+            # Distance membership function boundaries
+            'distance_close_max': random.uniform(200, 500),
+            'distance_medium_min': random.uniform(150, 400),
+            'distance_medium_max': random.uniform(400, 800),
+            'distance_far_min': random.uniform(500, 900),
+            
+            # Health membership function boundaries
+            'health_low_max': random.uniform(20, 60),
+            'health_medium_min': random.uniform(20, 50),
+            'health_medium_max': random.uniform(50, 80),
+            'health_high_min': random.uniform(50, 80),
+            
+            # Height difference boundaries
+            'height_below_max': random.uniform(-80, -40),
+            'height_same_range': random.uniform(50, 120),
+            'height_above_min': random.uniform(40, 80),
+            
+            # Combat parameters
+            'aggression_threshold': random.uniform(20, 70),
+            'secondary_fire_threshold': random.uniform(60, 90),
+            'shoot_distance_max': random.uniform(300, 700),
+            'shoot_height_diff_max': random.uniform(50, 150),
+            
+            # Jump parameters
+            'jump_frames': random.uniform(15, 30),
+            'fuzzy_jump_threshold': random.uniform(40, 80),
+            
+            # Platform navigation parameters
+            'platform_y_tolerance': random.uniform(80, 120),
+            'jump_zone_width': random.uniform(60, 120),
+            
+            # Tactical parameters
+            'retreat_health_threshold': random.uniform(10, 40),
+            'aggressive_distance': random.uniform(100, 400),
+        }
+    
+    def mutate(self, mutation_rate: float = 0.1, mutation_strength: float = 0.2):
+        """
+        Mutate genome parameters.
+        
+        Args:
+            mutation_rate: Probability of each gene mutating (0.0 to 1.0)
+            mutation_strength: How much to change the value (0.0 to 1.0)
+        """
+        for gene_name, value in self.genes.items():
+            if random.random() < mutation_rate:
+                # Get valid range for this gene
+                min_val, max_val = self._get_gene_range(gene_name)
+                
+                # Calculate mutation amount
+                gene_range = max_val - min_val
+                mutation_amount = random.uniform(-mutation_strength, mutation_strength) * gene_range
+                
+                # Apply mutation and clamp to valid range
+                new_value = value + mutation_amount
+                self.genes[gene_name] = max(min_val, min(max_val, new_value))
+    
+    def _get_gene_range(self, gene_name: str) -> tuple:
+        """Get valid range for a specific gene"""
+        ranges = {
+            'distance_close_max': (200, 500),
+            'distance_medium_min': (150, 400),
+            'distance_medium_max': (400, 800),
+            'distance_far_min': (500, 900),
+            'health_low_max': (20, 60),
+            'health_medium_min': (20, 50),
+            'health_medium_max': (50, 80),
+            'health_high_min': (50, 80),
+            'height_below_max': (-80, -40),
+            'height_same_range': (50, 120),
+            'height_above_min': (40, 80),
+            'aggression_threshold': (20, 70),
+            'secondary_fire_threshold': (60, 90),
+            'shoot_distance_max': (300, 700),
+            'shoot_height_diff_max': (50, 150),
+            'jump_frames': (15, 30),
+            'fuzzy_jump_threshold': (40, 80),
+            'platform_y_tolerance': (80, 120),
+            'jump_zone_width': (60, 120),
+            'retreat_health_threshold': (10, 40),
+            'aggressive_distance': (100, 400),
+        }
+        return ranges.get(gene_name, (0, 100))
+    
+    def crossover(self, other: 'FuzzyGenome') -> 'FuzzyGenome':
+        """
+        Create offspring genome by crossing over with another genome.
+        Uses uniform crossover (randomly pick each gene from either parent).
+        
+        Args:
+            other: Another FuzzyGenome to crossover with
+            
+        Returns:
+            New FuzzyGenome offspring
+        """
+        child_genes = {}
+        for gene_name in self.genes.keys():
+            # 50/50 chance to inherit from either parent
+            if random.random() < 0.5:
+                child_genes[gene_name] = self.genes[gene_name]
+            else:
+                child_genes[gene_name] = other.genes[gene_name]
+        
+        return FuzzyGenome(child_genes)
+    
+    def save(self, filename: str):
+        """Save genome to JSON file"""
+        data = {
+            'genes': self.genes,
+            'fitness': self.fitness,
+            'wins': self.wins,
+            'losses': self.losses,
+            'matches_played': self.matches_played
+        }
+        with open(filename, 'w') as f:
+            json.dump(data, f, indent=2)
+    
+    @classmethod
+    def load(cls, filename: str) -> 'FuzzyGenome':
+        """Load genome from JSON file"""
+        with open(filename, 'r') as f:
+            data = json.load(f)
+        
+        genome = cls(data['genes'])
+        genome.fitness = data.get('fitness', 0.0)
+        genome.wins = data.get('wins', 0)
+        genome.losses = data.get('losses', 0)
+        genome.matches_played = data.get('matches_played', 0)
+        return genome
+    
+    def get_summary(self) -> str:
+        """Get human-readable summary of genome"""
+        return f"""
+Genome Summary:
+  Combat Style:
+    - Aggression Threshold: {self.genes['aggression_threshold']:.1f}
+    - Close Range: 0-{self.genes['distance_close_max']:.0f}px
+    - Shoot Distance: {self.genes['shoot_distance_max']:.0f}px
+    
+  Movement:
+    - Jump Frames: {self.genes['jump_frames']:.0f}
+    - Aggressive Distance: {self.genes['aggressive_distance']:.0f}px
+    
+  Performance:
+    - Fitness: {self.fitness:.2f}
+    - W/L: {self.wins}/{self.losses} ({self.win_rate:.1%})
+    - Matches: {self.matches_played}
+"""
+    
+    @property
+    def win_rate(self) -> float:
+        """Calculate win rate"""
+        if self.matches_played == 0:
+            return 0.0
+        return self.wins / self.matches_played
+    
+    def __repr__(self):
+        return f"FuzzyGenome(fitness={self.fitness:.2f}, wins={self.wins}, losses={self.losses})"
+
+
+/ga_nn_trainer.py:
+"""
+GA trainer for neural-network-controlled bots.
+Very similar to ga_trainer.py but uses NeuralGenome + NeuralAI and saves to evolved_nn/.
+"""
+import os
+import sys
+import time
+import random
+import json
+from typing import List, Tuple
+
+# Add DLL paths
+dll_paths = [
+    r"C:\mingw64\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\libs\SDL2-2.32.8\x86_64-w64-mingw32\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\libs\SDL2_ttf-2.24.0\x86_64-w64-mingw32\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build_pybind"
+]
+
+if sys.version_info >= (3, 8):
+    for path in dll_paths:
+        if os.path.exists(path):
+            os.add_dll_directory(path)
+
+import gunmayhem
+from neural_genome import NeuralGenome
+from neural_ai import NeuralAI
+
+
+class NeuralGATrainer:
+    def __init__(self, population_size=5, elite_size=2, tournament_size=2):
+        self.population_size = population_size
+        self.elite_size = elite_size
+        self.tournament_size = tournament_size
+        self.population: List[NeuralGenome] = []
+        self.generation = 0
+        self.best_genome = None
+        self.best_fitness = 0.0
+        # artifacts dir
+        self.out_dir = "evolved_nn"
+        os.makedirs(self.out_dir, exist_ok=True)
+        print("="*70)
+        print("NEURAL GA TRAINER")
+        print("="*70)
+        print(f"Population: {population_size} | Elites: {elite_size} | Matches/bot: {tournament_size}")
+
+    def initialize_population(self):
+        self.population = [NeuralGenome() for _ in range(self.population_size)]
+
+    def _play_match(self, g1: NeuralGenome, g2: NeuralGenome, max_frames=1800, headless=True) -> Tuple[str, dict]:
+        # Change to build directory
+        project_root = os.path.dirname(os.path.abspath(__file__))
+        build_dir = os.path.join(project_root, 'build')
+        os.makedirs(build_dir, exist_ok=True)
+        original_dir = os.getcwd()
+        os.chdir(build_dir)
+        try:
+            game = gunmayhem.GameRunner()
+            if not game.init_game("GA NN - Bot vs Bot"):
+                os.chdir(original_dir)
+                return 'draw', {}
+            ai1 = NeuralAI(g1)
+            ai2 = NeuralAI(g2)
+            game_state = gunmayhem.GameState()
+            game_control = gunmayhem.GameControl()
+            frame = 0
+            disabled = False
+            while game.is_running() and frame < max_frames:
+                game.handle_events()
+                players = game_state.get_all_players()
+                if len(players) >= 2:
+                    pids = list(players.keys())
+                    if not disabled:
+                        game_control.disable_keyboard_for_player(pids[0])
+                        game_control.disable_keyboard_for_player(pids[1])
+                        disabled = True
+                    p1 = players[pids[0]]
+                    p2 = players[pids[1]]
+                    # win checks
+                    if p2['lives'] <= 0:
+                        game.quit(); os.chdir(original_dir)
+                        return 'player1', {'frames': frame, 'winner_health': p1['health'], 'winner_lives': p1['lives']}
+                    if p1['lives'] <= 0:
+                        game.quit(); os.chdir(original_dir)
+                        return 'player2', {'frames': frame, 'winner_health': p2['health'], 'winner_lives': p2['lives']}
+                    a1 = ai1.decide_action(p1, p2)
+                    a2 = ai2.decide_action(p2, p1)
+                    game_control.set_player_movement(pids[0], bool(a1['up']), bool(a1['left']), bool(a1['down']), bool(a1['right']), bool(a1['primaryFire']), bool(a1['secondaryFire']))
+                    game_control.set_player_movement(pids[1], bool(a2['up']), bool(a2['left']), bool(a2['down']), bool(a2['right']), bool(a2['primaryFire']), bool(a2['secondaryFire']))
+                game.update(0.0166)
+                if not headless:
+                    game.render()
+                frame += 1
+            game.quit(); os.chdir(original_dir)
+            return 'draw', {'frames': frame}
+        except Exception as e:
+            try:
+                game.quit()
+            except Exception:
+                pass
+            os.chdir(original_dir)
+            return 'draw', {}
+
+    def evaluate_fitness(self, genome: NeuralGenome, pool: List[NeuralGenome]) -> float:
+        wins = 0; losses = 0; total = 0.0
+        opponents = random.sample(pool, min(self.tournament_size, len(pool)))
+        for opp in opponents:
+            winner, stats = self._play_match(genome, opp, max_frames=1800, headless=True)
+            if winner == 'player1':
+                wins += 1
+                speed_bonus = max(0, 1800 - stats.get('frames', 1800)) / 100
+                health_bonus = stats.get('winner_health', 0) / 10
+                lives_bonus = stats.get('winner_lives', 0) * 50
+                total += 100 + speed_bonus + health_bonus + lives_bonus
+            elif winner == 'player2':
+                losses += 1
+            else:
+                total += 25
+        genome.wins = wins; genome.losses = losses; genome.matches_played = len(opponents)
+        genome.fitness = total / max(1, len(opponents))
+        return genome.fitness
+
+    def selection(self) -> List[NeuralGenome]:
+        return sorted(self.population, key=lambda g: g.fitness, reverse=True)[:self.elite_size]
+
+    def crossover_and_mutate(self, elites: List[NeuralGenome]) -> List[NeuralGenome]:
+        new_pop = elites.copy()
+        while len(new_pop) < self.population_size:
+            p1, p2 = random.sample(elites, 2)
+            child = p1.crossover(p2)
+            child.mutate(mutation_rate=0.15, sigma=0.1)
+            new_pop.append(child)
+        return new_pop
+
+    def save_best(self):
+        if not self.population:
+            return
+        best = max(self.population, key=lambda g: g.fitness)
+        if best.fitness > self.best_fitness:
+            self.best_fitness = best.fitness
+            self.best_genome = best
+        if self.best_genome:
+            gen_file = os.path.join(self.out_dir, f"best_genome_gen{self.generation}.json")
+            cur_file = os.path.join(self.out_dir, "best_genome.json")
+            self.best_genome.save(gen_file)
+            self.best_genome.save(cur_file)
+            print(f"[SAVE] {gen_file}")
+
+    def save_stats(self):
+        stats_file = os.path.join(self.out_dir, "evolution_stats.json")
+        row = {
+            'generation': self.generation,
+            'best_fitness': self.best_fitness,
+            'avg_fitness': sum(g.fitness for g in self.population)/len(self.population),
+            'min_fitness': min(g.fitness for g in self.population),
+            'max_fitness': max(g.fitness for g in self.population),
+            'population': self.population_size,
+            'elites': self.elite_size,
+            'tournament': self.tournament_size,
+        }
+        if os.path.exists(stats_file):
+            with open(stats_file, 'r') as f:
+                data = json.load(f)
+        else:
+            data = []
+        data.append(row)
+        with open(stats_file, 'w') as f:
+            json.dump(data, f, indent=2)
+
+    def evolve_generation(self):
+        print(f"\n=== GENERATION {self.generation} ===")
+        start = time.time()
+        for i, g in enumerate(self.population):
+            pool = [x for x in self.population if x is not g]
+            fit = self.evaluate_fitness(g, pool)
+            print(f"  [{i+1}/{len(self.population)}] fitness={fit:.2f}")
+        elites = self.selection()
+        self.population = self.crossover_and_mutate(elites)
+        self.save_best(); self.save_stats()
+        self.generation += 1
+        print(f"Gen time: {time.time()-start:.1f}s")
+
+    def run(self, generations=3):
+        print(f"Starting NN evolution for {generations} generations...")
+        for _ in range(generations):
+            self.evolve_generation()
+        print(f"Done. Best fitness={self.best_fitness:.2f}. Artifacts in {self.out_dir}/")
+
+
+def main():
+    POP = 5; ELITE = 2; TOUR = 2; GENS = 3
+    print("\nNN GA Trainer Config:")
+    print(f"  Population={POP}  Elites={ELITE}  Matches/bot={TOUR}  Generations={GENS}")
+    input("\nPress ENTER to start NN evolution...")
+    trainer = NeuralGATrainer(POP, ELITE, TOUR)
+    trainer.initialize_population()
+    trainer.run(generations=GENS)
+
+
+if __name__ == "__main__":
+    main()
+
+
+/ga_trainer.py:
+"""
+Genetic Algorithm Trainer for Fuzzy AI
+
+Evolves population of 100 bots that fight each other.
+Fitness = survival (wins when enemy reaches 0 lives).
+
+Does NOT modify existing code - completely separate training system!
+"""
+
+import os
+import sys
+import time
+import random
+import json
+from typing import List, Tuple
+import multiprocessing as mp
+
+# Add DLL paths
+dll_paths = [
+    r"C:\mingw64\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\libs\SDL2-2.32.8\x86_64-w64-mingw32\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\libs\SDL2_ttf-2.24.0\x86_64-w64-mingw32\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build_pybind"
+]
+
+if sys.version_info >= (3, 8):
+    for path in dll_paths:
+        if os.path.exists(path):
+            os.add_dll_directory(path)
+
+import gunmayhem
+from fuzzy_genome import FuzzyGenome
+from evolvable_fuzzy_ai import EvolvableFuzzyAI
+
+
+class GeneticTrainer:
+    """
+    Genetic Algorithm trainer for evolving fuzzy AI bots.
+    """
+    
+    def __init__(self, population_size=5, elite_size=2):
+        """
+        Initialize GA trainer.
+        
+        Args:
+            population_size: Number of bots in population (default: 100)
+            elite_size: Number of top bots to keep each generation (default: 10)
+        """
+        self.population_size = population_size
+        self.elite_size = elite_size
+        self.population: List[FuzzyGenome] = []
+        self.generation = 0
+        self.best_genome = None
+        self.best_fitness = 0.0
+        
+        # Evolution parameters
+        self.mutation_rate = 0.15  # 15% chance per gene
+        self.mutation_strength = 0.2  # 20% of gene range
+        self.tournament_size = 5  # Each bot fights 5 opponents per evaluation
+        
+        # Create evolved_genomes folder for saving
+        self.genomes_dir = "evolved_genomes"
+        if not os.path.exists(self.genomes_dir):
+            os.makedirs(self.genomes_dir)
+            print(f"Created '{self.genomes_dir}/' directory for saving genomes\n")
+        
+        print("=" * 70)
+        print("GENETIC ALGORITHM TRAINER FOR FUZZY AI")
+        print("=" * 70)
+        print(f"Population Size: {population_size}")
+        print(f"Elite Size: {elite_size}")
+        print(f"Tournament Size: {self.tournament_size}")
+        print(f"Training Mode: HEADLESS (no rendering, faster training)")
+        print()
+        print("NOTE: SDL2 windows will be created and destroyed for each match.")
+        print("      Each window is cleaned up immediately after the match.")
+        print("      You may see brief flashes - this is normal during training.")
+        print("=" * 70)
+    
+    def initialize_population(self):
+        """Create initial random population"""
+        print(f"\n[INIT] Creating {self.population_size} random genomes...")
+        self.population = [FuzzyGenome() for _ in range(self.population_size)]
+        print(f"[INIT] Population initialized!")
+    
+    def play_match(self, genome1: FuzzyGenome, genome2: FuzzyGenome, 
+                   max_frames=3600, headless=True) -> Tuple[str, dict]:
+        """
+        Play a match between two genomes.
+        
+        Args:
+            genome1: First bot's genome
+            genome2: Second bot's genome
+            max_frames: Maximum frames before declaring draw (default: 3600 = 60 seconds)
+            headless: Run without rendering (faster, default: True)
+            
+        Returns:
+            Tuple of (winner_id, match_stats)
+            winner_id: 'player1', 'player2', or 'draw'
+            
+        Note:
+            Even in headless mode, SDL2 creates a window (but doesn't render to it).
+            This is unavoidable without modifying the C++ game engine.
+            The window will be mostly invisible and performance is still good.
+        """
+        # Change to build directory
+        project_root = os.path.dirname(os.path.abspath(__file__))
+        build_dir = os.path.join(project_root, 'build')
+        if not os.path.exists(build_dir):
+            os.makedirs(build_dir)
+        original_dir = os.getcwd()
+        os.chdir(build_dir)
+        
+        try:
+            # Initialize game (creates SDL window even in headless mode)
+            game = gunmayhem.GameRunner()
+            if not game.init_game("GA Training - Bot vs Bot"):
+                print("[ERROR] Failed to initialize game!")
+                os.chdir(original_dir)
+                return 'draw', {}
+            
+            # Create AIs
+            ai1 = EvolvableFuzzyAI(genome1)
+            ai2 = EvolvableFuzzyAI(genome2)
+            
+            # Create wrappers
+            game_state = gunmayhem.GameState()
+            game_control = gunmayhem.GameControl()
+            
+            frame_count = 0
+            players_disabled = False
+            
+            # Game loop
+            while game.is_running() and frame_count < max_frames:
+                game.handle_events()
+                
+                players = game_state.get_all_players()
+                
+                if len(players) >= 2:
+                    player_ids = list(players.keys())
+                    
+                    # Disable keyboard once
+                    if not players_disabled:
+                        game_control.disable_keyboard_for_player(player_ids[0])
+                        game_control.disable_keyboard_for_player(player_ids[1])
+                        players_disabled = True
+                    
+                    player1_state = players[player_ids[0]]
+                    player2_state = players[player_ids[1]]
+                    
+                    # Check win condition: opponent has 0 lives
+                    if player2_state['lives'] <= 0:
+                        game.quit()  # Clean up SDL window
+                        os.chdir(original_dir)
+                        return 'player1', {
+                            'frames': frame_count,
+                            'winner_health': player1_state['health'],
+                            'winner_lives': player1_state['lives']
+                        }
+                    
+                    if player1_state['lives'] <= 0:
+                        game.quit()  # Clean up SDL window
+                        os.chdir(original_dir)
+                        return 'player2', {
+                            'frames': frame_count,
+                            'winner_health': player2_state['health'],
+                            'winner_lives': player2_state['lives']
+                        }
+                    
+                    # AI decisions
+                    ai1_actions = ai1.decide_action(player1_state, player2_state)
+                    ai2_actions = ai2.decide_action(player2_state, player1_state)
+                    
+                    # Send controls
+                    game_control.set_player_movement(
+                        player_ids[0],
+                        bool(ai1_actions['up']),
+                        bool(ai1_actions['left']),
+                        bool(ai1_actions['down']),
+                        bool(ai1_actions['right']),
+                        bool(ai1_actions['primaryFire']),
+                        bool(ai1_actions['secondaryFire'])
+                    )
+                    
+                    game_control.set_player_movement(
+                        player_ids[1],
+                        bool(ai2_actions['up']),
+                        bool(ai2_actions['left']),
+                        bool(ai2_actions['down']),
+                        bool(ai2_actions['right']),
+                        bool(ai2_actions['primaryFire']),
+                        bool(ai2_actions['secondaryFire'])
+                    )
+                
+                # Update game physics
+                game.update(0.0166)
+                
+                # Only render if not headless (skip rendering for fast training)
+                if not headless:
+                    game.render()
+                
+                frame_count += 1
+            
+            # If we get here, it's a draw (timeout)
+            game.quit()  # Clean up SDL window
+            os.chdir(original_dir)
+            return 'draw', {'frames': frame_count}
+        
+        except Exception as e:
+            print(f"[ERROR] Match failed: {e}")
+            try:
+                game.quit()  # Try to clean up even on error
+            except:
+                pass
+            os.chdir(original_dir)
+            return 'draw', {}
+    
+    def evaluate_fitness(self, genome: FuzzyGenome, opponent_pool: List[FuzzyGenome]) -> float:
+        """
+        Evaluate fitness by fighting against random opponents.
+        
+        Args:
+            genome: Genome to evaluate
+            opponent_pool: Pool of opponents to fight against
+            
+        Returns:
+            Fitness score (higher is better)
+        """
+        wins = 0
+        losses = 0
+        total_score = 0.0
+        
+        # Select random opponents
+        opponents = random.sample(opponent_pool, min(self.tournament_size, len(opponent_pool)))
+        
+        for opponent in opponents:
+            winner, stats = self.play_match(genome, opponent, max_frames=3600, headless=True)
+            
+            if winner == 'player1':
+                wins += 1
+                # Bonus points for faster wins and remaining health
+                speed_bonus = max(0, 3600 - stats.get('frames', 3600)) / 100
+                health_bonus = stats.get('winner_health', 0) / 10
+                lives_bonus = stats.get('winner_lives', 0) * 50
+                total_score += 100 + speed_bonus + health_bonus + lives_bonus
+            
+            elif winner == 'player2':
+                losses += 1
+                total_score += 0  # Loss = 0 points
+            
+            else:  # Draw
+                total_score += 25  # Small points for draw
+        
+        # Update genome stats
+        genome.wins = wins
+        genome.losses = losses
+        genome.matches_played = len(opponents)
+        genome.fitness = total_score / len(opponents)  # Average fitness
+        
+        return genome.fitness
+    
+    def selection(self) -> List[FuzzyGenome]:
+        """
+        Select elite genomes for next generation.
+        
+        Returns:
+            List of elite genomes
+        """
+        # Sort by fitness (descending)
+        sorted_pop = sorted(self.population, key=lambda g: g.fitness, reverse=True)
+        
+        # Return top performers
+        return sorted_pop[:self.elite_size]
+    
+    def crossover_and_mutate(self, elites: List[FuzzyGenome]) -> List[FuzzyGenome]:
+        """
+        Create offspring through crossover and mutation.
+        
+        Args:
+            elites: Elite genomes to breed from
+            
+        Returns:
+            New population including elites and offspring
+        """
+        new_population = elites.copy()  # Keep elites
+        
+        # Create offspring to fill rest of population
+        while len(new_population) < self.population_size:
+            # Select two random parents from elites
+            parent1, parent2 = random.sample(elites, 2)
+            
+            # Crossover
+            child = parent1.crossover(parent2)
+            
+            # Mutate
+            child.mutate(self.mutation_rate, self.mutation_strength)
+            
+            new_population.append(child)
+        
+        return new_population
+    
+    def evolve_generation(self):
+        """Run one generation of evolution"""
+        print(f"\n{'='*70}")
+        print(f"GENERATION {self.generation}")
+        print(f"{'='*70}")
+        
+        # Evaluate fitness for each genome
+        print(f"\n[EVAL] Evaluating {len(self.population)} genomes...")
+        print(f"       Each fights {self.tournament_size} opponents...")
+        
+        start_time = time.time()
+        
+        for i, genome in enumerate(self.population):
+            # Use rest of population as opponent pool
+            opponent_pool = [g for g in self.population if g is not genome]
+            
+            fitness = self.evaluate_fitness(genome, opponent_pool)
+            
+            if (i + 1) % 10 == 0 or (i + 1) == len(self.population):
+                elapsed = time.time() - start_time
+                eta = (elapsed / (i + 1)) * (len(self.population) - (i + 1))
+                print(f"       [{i+1}/{len(self.population)}] "
+                      f"Fitness: {fitness:.2f} | "
+                      f"ETA: {eta:.1f}s")
+        
+        # Find best genome
+        best = max(self.population, key=lambda g: g.fitness)
+        if best.fitness > self.best_fitness:
+            self.best_fitness = best.fitness
+            self.best_genome = best
+            print(f"\n[NEW BEST] Fitness: {best.fitness:.2f} | W/L: {best.wins}/{best.losses}")
+        
+        # Selection
+        print(f"\n[SELECT] Selecting top {self.elite_size} genomes...")
+        elites = self.selection()
+        
+        # Print elite stats
+        print(f"\n{'─'*70}")
+        print("ELITE GENOMES:")
+        for i, elite in enumerate(elites[:5]):  # Show top 5
+            print(f"  #{i+1}: Fitness={elite.fitness:.2f} | "
+                  f"W/L={elite.wins}/{elite.losses} ({elite.win_rate:.1%}) | "
+                  f"Aggression={elite.genes['aggression_threshold']:.1f}")
+        print(f"{'─'*70}")
+        
+        # Crossover and mutation
+        print(f"\n[BREED] Creating {self.population_size - self.elite_size} offspring...")
+        self.population = self.crossover_and_mutate(elites)
+        
+        # Save best genome
+        self.save_best_genome()
+        
+        # Save generation stats
+        self.save_generation_stats()
+        
+        self.generation += 1
+        
+        print(f"\nGeneration {self.generation - 1} complete!")
+        print(f"Time: {time.time() - start_time:.1f}s")
+    
+    def save_best_genome(self):
+        """Save best genome to file"""
+        if self.best_genome:
+            # Save generation-specific snapshot
+            filename = f"best_genome_gen{self.generation}.json"
+            filepath = os.path.join(self.genomes_dir, filename)
+            self.best_genome.save(filepath)
+            
+            # Also save as "best_genome.json" for easy loading
+            current_best = os.path.join(self.genomes_dir, "best_genome.json")
+            self.best_genome.save(current_best)
+            
+            print(f"\n[SAVE] Best genome saved to: {self.genomes_dir}/{filename}")
+    
+    def save_generation_stats(self):
+        """Save generation statistics"""
+        stats = {
+            'generation': self.generation,
+            'best_fitness': self.best_fitness,
+            'population_size': self.population_size,
+            'elite_size': self.elite_size,
+            'avg_fitness': sum(g.fitness for g in self.population) / len(self.population),
+            'min_fitness': min(g.fitness for g in self.population),
+            'max_fitness': max(g.fitness for g in self.population),
+        }
+        
+        # Append to stats file in evolved_genomes folder
+        stats_file = os.path.join(self.genomes_dir, "evolution_stats.json")
+        if os.path.exists(stats_file):
+            with open(stats_file, 'r') as f:
+                all_stats = json.load(f)
+        else:
+            all_stats = []
+        
+        all_stats.append(stats)
+        
+        with open(stats_file, 'w') as f:
+            json.dump(all_stats, f, indent=2)
+    
+    def run(self, num_generations=10):
+        """
+        Run evolution for multiple generations.
+        
+        Args:
+            num_generations: Number of generations to evolve
+        """
+        print(f"\n[START] Running evolution for {num_generations} generations...")
+        
+        overall_start = time.time()
+        
+        for gen in range(num_generations):
+            self.evolve_generation()
+        
+        total_time = time.time() - overall_start
+        
+        print(f"\n{'='*70}")
+        print("EVOLUTION COMPLETE!")
+        print(f"{'='*70}")
+        print(f"Total Time: {total_time:.1f}s ({total_time/60:.1f} minutes)")
+        print(f"Best Fitness: {self.best_fitness:.2f}")
+        print(f"\nBest genome saved to: {self.genomes_dir}/best_genome.json")
+        print(f"Load it with: genome = FuzzyGenome.load('{self.genomes_dir}/best_genome.json')")
+        
+        if self.best_genome:
+            print(self.best_genome.get_summary())
+
+
+def main():
+    """Main training loop"""
+    print("\n" + "="*70)
+    print("FUZZY AI GENETIC ALGORITHM TRAINER")
+    print("="*70)
+    
+    # Configuration
+    POPULATION_SIZE = 5
+    ELITE_SIZE = 2
+    NUM_GENERATIONS = 3
+    TOURNAMENT_SIZE = 2  # Each bot fights only 2 opponents per generation
+
+    print(f"\nConfiguration:")
+    print(f"  Population: {POPULATION_SIZE} bots")
+    print(f"  Elites: {ELITE_SIZE} best bots kept each generation")
+    print(f"  Generations: {NUM_GENERATIONS}")
+    print(f"  Matches per bot: {TOURNAMENT_SIZE} (tournament size)")
+    print(f"  Total matches: ~{POPULATION_SIZE * TOURNAMENT_SIZE * NUM_GENERATIONS}")
+
+    input("\nPress ENTER to start evolution...")
+
+    # Create trainer
+    trainer = GeneticTrainer(
+        population_size=POPULATION_SIZE,
+        elite_size=ELITE_SIZE
+    )
+    trainer.tournament_size = TOURNAMENT_SIZE  # Set tournament size
+
+    # Initialize population
+    trainer.initialize_population()
+    
+    # Run evolution
+    trainer.run(num_generations=NUM_GENERATIONS)
+    
+    print(f"\nTraining complete! Check evolved_genomes/best_genome.json for the evolved bot.")
+
+
+if __name__ == "__main__":
+    main()
+
+
 /main.cpp:
 #define SDL_MAIN_HANDLED
 
@@ -29,6 +1863,1137 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+
+/monitor_game.py:
+"""
+Monitor Gun Mayhem game state in real-time
+Run this WHILE the game is running to see live game data
+"""
+
+import os
+import sys
+import time
+
+# Add DLL paths
+dll_paths = [
+    r"C:\mingw64\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\libs\SDL2-2.32.8\x86_64-w64-mingw32\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\libs\SDL2_ttf-2.24.0\x86_64-w64-mingw32\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build_pybind"
+]
+
+if sys.version_info >= (3, 8):
+    for path in dll_paths:
+        if os.path.exists(path):
+            os.add_dll_directory(path)
+
+import gunmayhem
+
+def main():
+    print("Gun Mayhem Game Monitor")
+    print("=" * 50)
+    print("Start the game and enter PlayState (start playing)")
+    print("This script will display live game data")
+    print("Press Ctrl+C to stop")
+    print("=" * 50)
+    
+    game_state = gunmayhem.GameState()
+    
+    while True:
+        try:
+            # Get game info
+            info = game_state.get_game_info()
+            
+            if not info['is_running']:
+                print("\rWaiting for game to start...", end='', flush=True)
+                time.sleep(0.5)
+                continue
+            
+            # Get all game objects
+            players = game_state.get_all_players()
+            bullets = game_state.get_all_bullets()
+            platforms = game_state.get_all_platforms()
+            
+            # Clear screen (simple version)
+            os.system('cls' if os.name == 'nt' else 'clear')
+            
+            print("=== GUN MAYHEM - LIVE GAME STATE ===")
+            print(f"Screen: {info['screen_width']}x{info['screen_height']}")
+            print(f"Running: {info['is_running']}")
+            print()
+            
+            # Display players
+            print(f"PLAYERS ({len(players)}):")
+            for player_id, p in players.items():
+                print(f"  {player_id}:")
+                print(f"    Health: {p['health']}/100  Lives: {p['lives']}")
+                print(f"    Position: ({p['x']:.1f}, {p['y']:.1f})")
+                print(f"    Facing: {'←LEFT' if p['facing_direction']==0 else 'RIGHT→'}")
+            
+            # Display bullets
+            print(f"\nBULLETS ({len(bullets)}):")
+            if len(bullets) > 0:
+                for bullet_id, b in bullets.items():
+                    print(f"  {bullet_id}: Owner={b['owner_id']}, Pos=({b['x']:.1f}, {b['y']:.1f}), Damage={b['damage']}")
+            else:
+                print("  None")
+            
+            # Display platforms
+            print(f"\nPLATFORMS ({len(platforms)}):")
+            for platform_id, plat in platforms.items():
+                print(f"  {platform_id}: ({plat['x']:.1f}, {plat['y']:.1f}) - {plat['width']:.1f}x{plat['height']:.1f}")
+            
+            time.sleep(0.1)  # Update 10 times per second
+            
+        except KeyboardInterrupt:
+            print("\n\nMonitoring stopped.")
+            break
+        except Exception as e:
+            print(f"\nError: {e}")
+            time.sleep(1)
+
+if __name__ == "__main__":
+    main()
+
+
+/neural_ai.py:
+"""
+Neural AI controller using a fixed-topology feed-forward network evolved via GA.
+- Inputs (12): normalized features from player and enemy states
+- Hidden: 16 tanh
+- Outputs (6): action probabilities (sigmoid) -> threshold to booleans
+"""
+from __future__ import annotations
+import math
+from typing import Dict, List
+from neural_genome import (
+    NeuralGenome, INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE,
+    W1_SIZE, B1_SIZE, W2_SIZE, B2_SIZE
+)
+
+
+def tanh(x: float) -> float:
+    return math.tanh(x)
+
+
+def sigmoid(x: float) -> float:
+    # clamp to avoid overflow
+    if x < -50:
+        return 0.0
+    if x > 50:
+        return 1.0
+    return 1.0 / (1.0 + math.exp(-x))
+
+
+class NeuralAI:
+    def __init__(self, genome: NeuralGenome, action_threshold: float = 0.5):
+        self.genome = genome
+        self.action_threshold = action_threshold
+        # unpack weights/biases views (no copies)
+        g = genome.genes
+        self.W1 = g[0:W1_SIZE]
+        self.b1 = g[W1_SIZE:W1_SIZE+B1_SIZE]
+        off = W1_SIZE + B1_SIZE
+        self.W2 = g[off:off+W2_SIZE]
+        self.b2 = g[off+W2_SIZE:off+W2_SIZE+B2_SIZE]
+        # jump hold state
+        self.jump_hold_frames = 0
+        self.max_jump_hold = 20  # consistent with double-jump requirement
+
+    def _dot_mv(self, W: List[float], x: List[float], out_dim: int, in_dim: int, b: List[float]) -> List[float]:
+        # y = W x + b; W is row-major [out_dim x in_dim]
+        y = [0.0] * out_dim
+        idx = 0
+        for o in range(out_dim):
+            s = 0.0
+            base = o * in_dim
+            for i in range(in_dim):
+                s += W[base + i] * x[i]
+            y[o] = s + b[o]
+        return y
+
+    def _forward(self, x: List[float]) -> List[float]:
+        # Layer1
+        h = self._dot_mv(self.W1, x, HIDDEN_SIZE, INPUT_SIZE, self.b1)
+        h = [tanh(v) for v in h]
+        # Layer2
+        o = self._dot_mv(self.W2, h, OUTPUT_SIZE, HIDDEN_SIZE, self.b2)
+        o = [sigmoid(v) for v in o]
+        return o
+
+    def _features(self, me: Dict, enemy: Dict) -> List[float]:
+        # Build 12 normalized features
+        # Positions normalized by screen (assumed 1280x720-like)
+        dx = (enemy['x'] - me['x']) / 640.0  # ~ -2..2
+        dy = (enemy['y'] - me['y']) / 360.0  # ~ -2..2 (positive means enemy lower)
+        dist = math.hypot(dx, dy)  # ~0..3
+        me_hp = (me['health'] / 100.0)
+        en_hp = (enemy['health'] / 100.0)
+        me_lives = (me['lives'] / 3.0)
+        en_lives = (enemy['lives'] / 3.0)
+        # Facing: -1 left, +1 right
+        facing = -1.0 if me.get('facing_direction', 1) == 0 else 1.0
+        # Height indicators
+        above = 1.0 if me['y'] < enemy['y'] - 40 else 0.0
+        below = 1.0 if me['y'] > enemy['y'] + 40 else 0.0
+        same_y = 1.0 if abs(me['y'] - enemy['y']) <= 40 else 0.0
+        # Bias-like constant
+        bias = 1.0
+        return [dx, dy, dist, me_hp, en_hp, me_lives, en_lives, facing, above, below, same_y, bias]
+
+    def decide_action(self, me: Dict, enemy: Dict) -> Dict[str, bool]:
+        x = self._features(me, enemy)
+        probs = self._forward(x)
+        up_p, left_p, down_p, right_p, primary_p, secondary_p = probs
+
+        # Jump hold logic for double-jump/platform reach
+        up = up_p > self.action_threshold
+        if up:
+            self.jump_hold_frames = min(self.max_jump_hold, self.jump_hold_frames + 1)
+        else:
+            self.jump_hold_frames = max(0, self.jump_hold_frames - 2)
+        up_pressed = self.jump_hold_frames > 0
+
+        actions = {
+            'up': up_pressed,
+            'left': left_p > self.action_threshold,
+            'down': down_p > self.action_threshold,
+            'right': right_p > self.action_threshold,
+            'primaryFire': primary_p > self.action_threshold,
+            'secondaryFire': secondary_p > self.action_threshold,
+        }
+        return actions
+
+
+/neural_genome.py:
+"""
+Neural genome for evolving a fixed-topology neural network with GA.
+Architecture (fixed):
+- Inputs: 12 features
+- Hidden: 16 units (tanh)
+- Outputs: 6 actions (sigmoid -> threshold)
+
+Genes: flattened list of weights and biases in order [W1, b1, W2, b2].
+"""
+from __future__ import annotations
+import json
+import math
+import random
+from dataclasses import dataclass, field
+from typing import List, Dict
+
+INPUT_SIZE = 12
+HIDDEN_SIZE = 16
+OUTPUT_SIZE = 6
+
+# Gene layout sizes
+W1_SIZE = INPUT_SIZE * HIDDEN_SIZE           # 12*16 = 192
+B1_SIZE = HIDDEN_SIZE                        # 16
+W2_SIZE = HIDDEN_SIZE * OUTPUT_SIZE          # 16*6 = 96
+B2_SIZE = OUTPUT_SIZE                        # 6
+TOTAL_GENES = W1_SIZE + B1_SIZE + W2_SIZE + B2_SIZE  # 310
+
+
+def _rand_weight(scale: float = 1.0) -> float:
+    # Xavier-like init range
+    return random.uniform(-scale, scale)
+
+
+@dataclass
+class NeuralGenome:
+    genes: List[float] = field(default_factory=list)
+    fitness: float = 0.0
+    wins: int = 0
+    losses: int = 0
+    matches_played: int = 0
+
+    def __post_init__(self):
+        if not self.genes:
+            # Initialize with small random values
+            scale1 = math.sqrt(6.0 / (INPUT_SIZE + HIDDEN_SIZE))
+            scale2 = math.sqrt(6.0 / (HIDDEN_SIZE + OUTPUT_SIZE))
+            # W1
+            self.genes = [_rand_weight(scale1) for _ in range(W1_SIZE)]
+            # b1
+            self.genes += [0.0 for _ in range(B1_SIZE)]
+            # W2
+            self.genes += [_rand_weight(scale2) for _ in range(W2_SIZE)]
+            # b2
+            self.genes += [0.0 for _ in range(B2_SIZE)]
+
+    @property
+    def win_rate(self) -> float:
+        return (self.wins / self.matches_played) if self.matches_played else 0.0
+
+    def clone(self) -> "NeuralGenome":
+        g = NeuralGenome(self.genes.copy())
+        g.fitness = self.fitness
+        g.wins = self.wins
+        g.losses = self.losses
+        g.matches_played = self.matches_played
+        return g
+
+    def mutate(self, mutation_rate: float = 0.15, sigma: float = 0.1):
+        """Gaussian noise per gene with given probability."""
+        for i in range(len(self.genes)):
+            if random.random() < mutation_rate:
+                self.genes[i] += random.gauss(0.0, sigma)
+                # clamp to avoid exploding weights
+                if self.genes[i] > 3.0:
+                    self.genes[i] = 3.0
+                elif self.genes[i] < -3.0:
+                    self.genes[i] = -3.0
+
+    def crossover(self, other: "NeuralGenome") -> "NeuralGenome":
+        child = NeuralGenome(self.genes.copy())
+        for i in range(len(self.genes)):
+            if random.random() < 0.5:
+                child.genes[i] = other.genes[i]
+        return child
+
+    def save(self, filename: str):
+        data = {
+            "arch": {
+                "input": INPUT_SIZE,
+                "hidden": HIDDEN_SIZE,
+                "output": OUTPUT_SIZE,
+                "total": TOTAL_GENES,
+            },
+            "genes": self.genes,
+            "fitness": self.fitness,
+            "wins": self.wins,
+            "losses": self.losses,
+            "matches_played": self.matches_played,
+        }
+        with open(filename, "w") as f:
+            json.dump(data, f, indent=2)
+
+    @classmethod
+    def load(cls, filename: str) -> "NeuralGenome":
+        with open(filename, "r") as f:
+            data = json.load(f)
+        genes = data["genes"]
+        # Optional: validate length
+        if len(genes) != TOTAL_GENES:
+            raise ValueError(f"Invalid gene length {len(genes)} != {TOTAL_GENES}")
+        g = NeuralGenome(genes)
+        g.fitness = data.get("fitness", 0.0)
+        g.wins = data.get("wins", 0)
+        g.losses = data.get("losses", 0)
+        g.matches_played = data.get("matches_played", 0)
+        return g
+
+    def summary(self) -> str:
+        return (
+            f"NeuralGenome: {len(self.genes)} genes (I={INPUT_SIZE}, H={HIDDEN_SIZE}, O={OUTPUT_SIZE})\n"
+            f"  Fitness={self.fitness:.2f}, W/L={self.wins}/{self.losses} ({self.win_rate:.1%})"
+        )
+
+
+/play_fuzzy_vs_nn.py:
+"""
+Watch a match: Fuzzy (evolved) vs Neural (evolved)
+- Loads fuzzy genome from evolved_genomes/best_genome.json
+- Loads neural genome from evolved_nn/best_genome.json
+- Runs a headful game where both AIs fight each other
+"""
+import os
+import sys
+import time
+
+# Add DLL paths
+dll_paths = [
+    r"C:\mingw64\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\libs\SDL2-2.32.8\x86_64-w64-mingw32\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\libs\SDL2_ttf-2.24.0\x86_64-w64-mingw32\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build_pybind"
+]
+
+if sys.version_info >= (3, 8):
+    for path in dll_paths:
+        if os.path.exists(path):
+            os.add_dll_directory(path)
+
+import gunmayhem
+from fuzzy_genome import FuzzyGenome
+from evolvable_fuzzy_ai import EvolvableFuzzyAI
+from neural_genome import NeuralGenome
+from neural_ai import NeuralAI
+
+
+def main():
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    build_dir = os.path.join(project_root, 'build')
+    os.makedirs(build_dir, exist_ok=True)
+    os.chdir(build_dir)
+
+    print("="*60)
+    print("GUN MAYHEM - Fuzzy (Player1) vs Neural (Player2)")
+    print("="*60)
+
+    # Load genomes
+    try:
+        fuzzy_genome = FuzzyGenome.load("../evolved_genomes/best_genome.json")
+        print("✓ Loaded fuzzy genome")
+    except Exception as e:
+        print(f"⚠ Using random fuzzy genome: {e}")
+        fuzzy_genome = FuzzyGenome()
+
+    try:
+        nn_genome = NeuralGenome.load("../evolved_nn/best_genome.json")
+        print("✓ Loaded neural genome")
+    except Exception as e:
+        print(f"⚠ Using random NN genome: {e}")
+        nn_genome = NeuralGenome()
+
+    fuzzy_ai = EvolvableFuzzyAI(fuzzy_genome)
+    nn_ai = NeuralAI(nn_genome)
+
+    input("\nPress ENTER to start the match...")
+
+    game = gunmayhem.GameRunner()
+    if not game.init_game("Gun Mayhem - Fuzzy vs NN"):
+        print("Failed to initialize game!")
+        return
+
+    game_state = gunmayhem.GameState()
+    game_control = gunmayhem.GameControl()
+
+    frame = 0
+    kb_disabled = False
+
+    print("Running match: Fuzzy (P1) vs NN (P2)")
+
+    while game.is_running():
+        game.handle_events()
+        players = game_state.get_all_players()
+        if len(players) >= 2:
+            pids = list(players.keys())
+            if not kb_disabled:
+                # Disable keyboard for both AI players
+                game_control.disable_keyboard_for_player(pids[0])
+                game_control.disable_keyboard_for_player(pids[1])
+                kb_disabled = True
+            p1 = players[pids[0]]
+            p2 = players[pids[1]]
+
+            # Win checks
+            if p2['lives'] <= 0 or p1['lives'] <= 0:
+                winner = 'Fuzzy (P1)' if p2['lives'] <= 0 else 'Neural (P2)'
+                print(f"\nWinner: {winner}")
+                break
+
+            # Decide actions
+            a_fuzzy = fuzzy_ai.decide_action(p1, p2)
+            a_nn = nn_ai.decide_action(p2, p1)
+
+            # Apply controls
+            game_control.set_player_movement(
+                pids[0], bool(a_fuzzy['up']), bool(a_fuzzy['left']), bool(a_fuzzy['down']), bool(a_fuzzy['right']), bool(a_fuzzy['primaryFire']), bool(a_fuzzy['secondaryFire'])
+            )
+            game_control.set_player_movement(
+                pids[1], bool(a_nn['up']), bool(a_nn['left']), bool(a_nn['down']), bool(a_nn['right']), bool(a_nn['primaryFire']), bool(a_nn['secondaryFire'])
+            )
+        game.update(0.0166)
+        game.render()
+        frame += 1
+    print("\nMatch ended.")
+
+
+if __name__ == "__main__":
+    main()
+
+
+/play_vs_ai.py:
+"""
+Gun Mayhem with Fuzzy AI
+- Player 1: Human controlled (WASD + Space to shoot)
+- Player 2: AI controlled with fuzzy logic
+"""
+
+import os
+import sys
+import time
+
+# Add DLL paths
+dll_paths = [
+    r"C:\mingw64\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\libs\SDL2-2.32.8\x86_64-w64-mingw32\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\libs\SDL2_ttf-2.24.0\x86_64-w64-mingw32\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build_pybind"
+]
+
+if sys.version_info >= (3, 8):
+    for path in dll_paths:
+        if os.path.exists(path):
+            os.add_dll_directory(path)
+
+import gunmayhem
+from fuzzy_ai import FuzzyAI, SimpleFuzzyAI, FUZZY_AVAILABLE
+
+
+def main():
+    # Change to build directory
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    build_dir = os.path.join(project_root, 'build')
+    if not os.path.exists(build_dir):
+        os.makedirs(build_dir)
+    os.chdir(build_dir)
+    
+    print("=" * 60)
+    print("GUN MAYHEM - Human vs Fuzzy AI")
+    print("=" * 60)
+    print("Player 1: YOU (Controlled by keyboard in game)")
+    print("Player 2: FUZZY AI (Controlled by Python)")
+    print()
+    print("Starting game...")
+    
+    # Initialize game
+    game = gunmayhem.GameRunner()
+    if not game.init_game("Gun Mayhem - Human vs AI"):
+        print("Failed to initialize game!")
+        return
+    
+    # Create wrappers
+    game_state = gunmayhem.GameState()
+    game_control = gunmayhem.GameControl()
+    
+    # Initialize AI
+    ai = FuzzyAI() if FUZZY_AVAILABLE else SimpleFuzzyAI()
+    
+    frame_count = 0
+    last_print = time.time()
+    
+    print("Game running! Play with the keyboard, AI will control Player 2")
+    
+    # Flag to track if we've disabled keyboard for AI player
+    ai_keyboard_disabled = False
+    
+    # Game loop
+    while game.is_running():
+        game.handle_events()
+        
+        # Get current game state
+        players = game_state.get_all_players()
+        
+        # Control AI player if there are 2 players
+        if len(players) >= 2:
+            player_ids = list(players.keys())
+            
+            # Disable keyboard for AI player (only once)
+            if not ai_keyboard_disabled:
+                game_control.disable_keyboard_for_player(player_ids[1])
+                ai_keyboard_disabled = True
+                print(f"AI taking control of {player_ids[1]}")
+            
+            # Assume player1 is human, player2 is AI
+            # You can adjust this based on actual player IDs
+            if len(player_ids) >= 2:
+                player1_state = players[player_ids[0]]
+                player2_state = players[player_ids[1]]
+                
+                # AI decides actions
+                ai_actions = ai.decide_action(player2_state, player1_state)
+                
+                # Enhanced debug output
+                if frame_count % 60 == 0:  # Every second at 60 FPS
+                    distance = abs(player2_state['x'] - player1_state['x'])
+                    height_diff = player2_state['y'] - player1_state['y']
+                    
+                    # Determine levels
+                    ai_level = 'TOP' if abs(player2_state['y'] - 300) < 100 else 'BOTTOM'
+                    human_level = 'TOP' if abs(player1_state['y'] - 300) < 100 else 'BOTTOM'
+                    
+                    print(f"\n[AI DECISION] Frame {frame_count}")
+                    print(f"  Levels: AI={ai_level} ({player2_state['y']:.0f}), Human={human_level} ({player1_state['y']:.0f})")
+                    print(f"  Distance: {distance:.0f}px, Height Diff: {height_diff:.0f}px")
+                    print(f"  Actions: Jump={ai_actions['up']}, Left={ai_actions['left']}, Right={ai_actions['right']}, Shoot={ai_actions['primaryFire']}")
+                
+                # Send AI controls to player 2 (must use positional arguments)
+                game_control.set_player_movement(
+                    player_ids[1],                          # player ID
+                    bool(ai_actions['up']),                 # up
+                    bool(ai_actions['left']),               # left
+                    bool(ai_actions['down']),               # down
+                    bool(ai_actions['right']),              # right
+                    bool(ai_actions['primaryFire']),        # primaryFire
+                    bool(ai_actions['secondaryFire'])       # secondaryFire
+                )
+        
+        # Update and render
+        game.update(0.0166)
+        game.render()
+        
+        # Print stats every second
+        frame_count += 1
+        if time.time() - last_print > 1.0:
+            bullets = game_state.get_all_bullets()
+            
+            print(f"\n[GAME STATE] Frame {frame_count}")
+            print(f"  Players: {len(players)}, Bullets: {len(bullets)}")
+            for player_id, p in players.items():
+                player_type = "HUMAN" if player_id == list(players.keys())[0] else "AI   "
+                print(f"  [{player_type}] {player_id}: HP={p['health']:5.1f}, Lives={p['lives']}, Pos=({p['x']:6.1f}, {p['y']:6.1f})")
+            
+            last_print = time.time()
+        
+        time.sleep(0.016)  # ~60 FPS
+    
+    print("\nGame ended!")
+
+
+if __name__ == "__main__":
+    main()
+
+
+/play_vs_evolved_ai.py:
+"""
+Play against the evolved GA bot
+
+This script lets you play against a bot that was evolved using genetic algorithms.
+"""
+
+import os
+import sys
+import time
+
+# Add DLL paths
+dll_paths = [
+    r"C:\mingw64\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\libs\SDL2-2.32.8\x86_64-w64-mingw32\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\libs\SDL2_ttf-2.24.0\x86_64-w64-mingw32\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build_pybind"
+]
+
+if sys.version_info >= (3, 8):
+    for path in dll_paths:
+        if os.path.exists(path):
+            os.add_dll_directory(path)
+
+import gunmayhem
+from fuzzy_genome import FuzzyGenome
+from evolvable_fuzzy_ai import EvolvableFuzzyAI
+
+
+def main():
+    # Change to build directory
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    build_dir = os.path.join(project_root, 'build')
+    if not os.path.exists(build_dir):
+        os.makedirs(build_dir)
+    os.chdir(build_dir)
+    
+    print("=" * 60)
+    print("GUN MAYHEM - Human vs EVOLVED AI")
+    print("=" * 60)
+    
+    # Try to load evolved genome from evolved_genomes folder
+    try:
+        genome = FuzzyGenome.load("../evolved_genomes/best_genome.json")
+        print("\n✓ Loaded evolved genome!")
+        print(f"  Fitness: {genome.fitness:.2f}")
+        print(f"  W/L Record: {genome.wins}/{genome.losses} ({genome.win_rate:.1%})")
+        print(f"  Aggression: {genome.genes['aggression_threshold']:.1f}")
+        print(f"  Close Range: 0-{genome.genes['distance_close_max']:.0f}px")
+    except FileNotFoundError:
+        print("\n⚠ No evolved genome found! Using random genome.")
+        print("  Run ga_trainer.py first to evolve a bot.")
+        genome = FuzzyGenome()
+    
+    print("\nPlayer 1: YOU (Controlled by keyboard)")
+    print("Player 2: EVOLVED AI (Controlled by GA-trained bot)")
+    print()
+    input("Press ENTER to start...")
+    
+    # Initialize game
+    game = gunmayhem.GameRunner()
+    if not game.init_game("Gun Mayhem - vs Evolved AI"):
+        print("Failed to initialize game!")
+        return
+    
+    # Create AI with evolved genome
+    ai = EvolvableFuzzyAI(genome)
+    
+    # Create wrappers
+    game_state = gunmayhem.GameState()
+    game_control = gunmayhem.GameControl()
+    
+    frame_count = 0
+    last_print = time.time()
+    ai_keyboard_disabled = False
+    
+    print("Game running! Play with the keyboard, AI will control Player 2")
+    
+    # Game loop
+    while game.is_running():
+        game.handle_events()
+        
+        # Get current game state
+        players = game_state.get_all_players()
+        
+        # Control AI player if there are 2 players
+        if len(players) >= 2:
+            player_ids = list(players.keys())
+            
+            # Disable keyboard for AI player (only once)
+            if not ai_keyboard_disabled:
+                game_control.disable_keyboard_for_player(player_ids[1])
+                ai_keyboard_disabled = True
+                print(f"Evolved AI taking control of {player_ids[1]}")
+            
+            if len(player_ids) >= 2:
+                player1_state = players[player_ids[0]]
+                player2_state = players[player_ids[1]]
+                
+                # AI decides actions
+                ai_actions = ai.decide_action(player2_state, player1_state)
+                
+                # Enhanced debug output
+                if frame_count % 60 == 0:  # Every second at 60 FPS
+                    distance = abs(player2_state['x'] - player1_state['x'])
+                    height_diff = player2_state['y'] - player1_state['y']
+                    
+                    ai_level = 'TOP' if abs(player2_state['y'] - 300) < 100 else 'BOTTOM'
+                    human_level = 'TOP' if abs(player1_state['y'] - 300) < 100 else 'BOTTOM'
+                    
+                    print(f"\n[AI DECISION] Frame {frame_count}")
+                    print(f"  Levels: AI={ai_level} ({player2_state['y']:.0f}), Human={human_level} ({player1_state['y']:.0f})")
+                    print(f"  Distance: {distance:.0f}px, Height Diff: {height_diff:.0f}px")
+                    print(f"  Actions: Jump={ai_actions['up']}, Left={ai_actions['left']}, Right={ai_actions['right']}, Shoot={ai_actions['primaryFire']}")
+                
+                # Send AI controls
+                game_control.set_player_movement(
+                    player_ids[1],
+                    bool(ai_actions['up']),
+                    bool(ai_actions['left']),
+                    bool(ai_actions['down']),
+                    bool(ai_actions['right']),
+                    bool(ai_actions['primaryFire']),
+                    bool(ai_actions['secondaryFire'])
+                )
+        
+        # Update and render
+        game.update(0.0166)
+        game.render()
+        
+        # Print stats every second
+        frame_count += 1
+        if time.time() - last_print > 1.0:
+            bullets = game_state.get_all_bullets()
+            
+            print(f"\n[GAME STATE] Frame {frame_count}")
+            print(f"  Players: {len(players)}, Bullets: {len(bullets)}")
+            for player_id, p in players.items():
+                player_type = "HUMAN" if player_id == list(players.keys())[0] else "AI   "
+                print(f"  [{player_type}] {player_id}: HP={p['health']:5.1f}, Lives={p['lives']}, Pos=({p['x']:6.1f}, {p['y']:6.1f})")
+            
+            last_print = time.time()
+        
+        time.sleep(0.016)  # ~60 FPS
+    
+    print("\nGame ended!")
+
+
+if __name__ == "__main__":
+    main()
+
+
+/play_vs_evolved_nn.py:
+"""
+Play against the evolved NN bot.
+Loads evolved_nn/best_genome.json and runs a human vs AI match.
+"""
+import os
+import sys
+import time
+
+# Add DLL paths
+dll_paths = [
+    r"C:\mingw64\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\libs\SDL2-2.32.8\x86_64-w64-mingw32\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\libs\SDL2_ttf-2.24.0\x86_64-w64-mingw32\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build_pybind"
+]
+
+if sys.version_info >= (3, 8):
+    for path in dll_paths:
+        if os.path.exists(path):
+            os.add_dll_directory(path)
+
+import gunmayhem
+from neural_genome import NeuralGenome
+from neural_ai import NeuralAI
+
+
+def main():
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    build_dir = os.path.join(project_root, 'build')
+    os.makedirs(build_dir, exist_ok=True)
+    os.chdir(build_dir)
+
+    print("="*60)
+    print("GUN MAYHEM - Human vs EVOLVED NN AI")
+    print("="*60)
+
+    # Load genome
+    try:
+        genome = NeuralGenome.load("../evolved_nn/best_genome.json")
+        print("\n✓ Loaded evolved NN genome!")
+        print(genome.summary())
+    except Exception as e:
+        print(f"\n⚠ Could not load evolved NN genome: {e}")
+        print("  Starting with a random genome.")
+        genome = NeuralGenome()
+
+    input("\nPress ENTER to start...")
+
+    # Init game
+    game = gunmayhem.GameRunner()
+    if not game.init_game("Gun Mayhem - vs Evolved NN AI"):
+        print("Failed to initialize game!")
+        return
+
+    ai = NeuralAI(genome)
+    game_state = gunmayhem.GameState()
+    game_control = gunmayhem.GameControl()
+
+    frame = 0
+    ai_keyboard_disabled = False
+
+    print("Game running! You are Player 1.")
+
+    while game.is_running():
+        game.handle_events()
+        players = game_state.get_all_players()
+        if len(players) >= 2:
+            pids = list(players.keys())
+            if not ai_keyboard_disabled:
+                game_control.disable_keyboard_for_player(pids[1])
+                ai_keyboard_disabled = True
+                print(f"NN AI taking control of {pids[1]}")
+            p1 = players[pids[0]]
+            p2 = players[pids[1]]
+            actions = ai.decide_action(p2, p1)
+            game_control.set_player_movement(
+                pids[1],
+                bool(actions['up']), bool(actions['left']), bool(actions['down']), bool(actions['right']),
+                bool(actions['primaryFire']), bool(actions['secondaryFire'])
+            )
+        game.update(0.0166)
+        game.render()
+        frame += 1
+    print("\nGame ended!")
+
+
+if __name__ == "__main__":
+    main()
+
+
+/run.bat:
+@echo off
+cmake --build .
+if %ERRORLEVEL% NEQ 0 (
+    exit /b %ERRORLEVEL%
+)
+.\GunMayhem.exe
+
+
+/test_headless.py:
+"""
+Test headless training mode - runs one quick match to verify setup
+"""
+
+import os
+import sys
+
+# Add DLL paths
+dll_paths = [
+    r"C:\mingw64\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\libs\SDL2-2.32.8\x86_64-w64-mingw32\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\libs\SDL2_ttf-2.24.0\x86_64-w64-mingw32\bin",
+    r"C:\Users\jayad\Desktop\PROJECTS\Gun-Mayhem\build_pybind"
+]
+
+if sys.version_info >= (3, 8):
+    for path in dll_paths:
+        if os.path.exists(path):
+            os.add_dll_directory(path)
+
+from fuzzy_genome import FuzzyGenome
+from ga_trainer import GeneticTrainer
+
+def main():
+    print("="*70)
+    print("HEADLESS MODE TEST")
+    print("="*70)
+    print("\nThis will run ONE match between two random bots in headless mode.")
+    print("You should see an SDL2 window appear briefly and then close.")
+    print("The window is automatically cleaned up after the match.")
+    print()
+    input("Press ENTER to start test match...")
+    
+    # Create two random genomes
+    genome1 = FuzzyGenome()
+    genome2 = FuzzyGenome()
+    
+    print("\n[TEST] Creating trainer...")
+    trainer = GeneticTrainer(population_size=2, elite_size=1)
+    
+    print("[TEST] Running headless match (max 10 seconds)...")
+    print("       Watch for window to appear and then automatically close.")
+    
+    winner, stats = trainer.play_match(genome1, genome2, max_frames=600, headless=True)
+    
+    print(f"\n[TEST] Match complete!")
+    print(f"       Winner: {winner}")
+    print(f"       Frames: {stats.get('frames', 'N/A')}")
+    
+    if winner in ['player1', 'player2']:
+        print(f"       Winner Health: {stats.get('winner_health', 'N/A'):.1f}")
+        print(f"       Winner Lives: {stats.get('winner_lives', 'N/A')}")
+    
+    print("\n✓ Headless mode is working correctly!")
+    print("✓ Window was automatically cleaned up after the match!")
+    print("  This prevents window buildup during training.")
+    print("\nYou can now run: python ga_trainer.py")
+
+if __name__ == "__main__":
+    main()
+
+
+/visualize_evolution.py:
+"""
+Visualize the evolution progress from training data.
+Shows fitness trends, parameter evolution, and genome comparisons.
+"""
+
+import os
+import json
+import sys
+
+def load_evolution_stats():
+    """Load evolution statistics from evolved_genomes folder"""
+    stats_file = os.path.join("evolved_genomes", "evolution_stats.json")
+    
+    if not os.path.exists(stats_file):
+        print(f"Error: {stats_file} not found!")
+        print("Run ga_trainer.py first to generate evolution data.")
+        return None
+    
+    with open(stats_file, 'r') as f:
+        return json.load(f)
+
+def load_genome(filename):
+    """Load a specific genome file"""
+    filepath = os.path.join("evolved_genomes", filename)
+    
+    if not os.path.exists(filepath):
+        return None
+    
+    with open(filepath, 'r') as f:
+        return json.load(f)
+
+def print_fitness_chart(stats):
+    """Print ASCII chart of fitness progression"""
+    print("\n" + "="*70)
+    print("FITNESS PROGRESSION")
+    print("="*70)
+    
+    generations = [s['generation'] for s in stats]
+    best_fitness = [s['best_fitness'] for s in stats]
+    avg_fitness = [s['avg_fitness'] for s in stats]
+    
+    # Find min/max for scaling
+    all_values = best_fitness + avg_fitness
+    min_val = min(all_values)
+    max_val = max(all_values)
+    
+    if max_val == min_val:
+        max_val = min_val + 1
+    
+    print(f"\nGen | Best Fitness | Avg Fitness | Chart (Best=*, Avg=.)")
+    print("-" * 70)
+    
+    for i, gen in enumerate(generations):
+        best = best_fitness[i]
+        avg = avg_fitness[i]
+        
+        # Scale to 40 character width
+        best_pos = int((best - min_val) / (max_val - min_val) * 40)
+        avg_pos = int((avg - min_val) / (max_val - min_val) * 40)
+        
+        # Create chart line
+        chart = [' '] * 41
+        chart[avg_pos] = '.'
+        chart[best_pos] = '*'
+        
+        print(f"{gen:3d} | {best:10.2f}   | {avg:10.2f}  | {''.join(chart)}")
+    
+    print(f"\nImprovement: {best_fitness[0]:.2f} → {best_fitness[-1]:.2f} (+{best_fitness[-1] - best_fitness[0]:.2f})")
+
+def print_statistics_table(stats):
+    """Print detailed statistics table"""
+    print("\n" + "="*70)
+    print("GENERATION STATISTICS")
+    print("="*70)
+    
+    print(f"\n{'Gen':<5} {'Best':<10} {'Avg':<10} {'Min':<10} {'Max':<10}")
+    print("-" * 70)
+    
+    for s in stats:
+        print(f"{s['generation']:<5} {s['best_fitness']:<10.2f} {s['avg_fitness']:<10.2f} "
+              f"{s['min_fitness']:<10.2f} {s['max_fitness']:<10.2f}")
+
+def compare_genomes(gen1, gen2):
+    """Compare two genome generations"""
+    genome1 = load_genome(f"best_genome_gen{gen1}.json")
+    genome2 = load_genome(f"best_genome_gen{gen2}.json")
+    
+    if not genome1 or not genome2:
+        print(f"\nError: Could not load genomes for generations {gen1} and {gen2}")
+        return
+    
+    print("\n" + "="*70)
+    print(f"GENOME COMPARISON: Gen {gen1} vs Gen {gen2}")
+    print("="*70)
+    
+    print(f"\nFitness: {genome1['fitness']:.2f} → {genome2['fitness']:.2f} "
+          f"(change: {genome2['fitness'] - genome1['fitness']:+.2f})")
+    print(f"W/L: {genome1['wins']}/{genome1['losses']} → {genome2['wins']}/{genome2['losses']}")
+    
+    print(f"\n{'Parameter':<30} {'Gen ' + str(gen1):<12} {'Gen ' + str(gen2):<12} {'Change':<12}")
+    print("-" * 70)
+    
+    genes1 = genome1['genes']
+    genes2 = genome2['genes']
+    
+    for param in sorted(genes1.keys()):
+        val1 = genes1[param]
+        val2 = genes2[param]
+        change = val2 - val1
+        change_str = f"{change:+.2f}" if abs(change) > 0.01 else "~"
+        
+        print(f"{param:<30} {val1:<12.2f} {val2:<12.2f} {change_str:<12}")
+
+def print_parameter_evolution(stats, param_name):
+    """Show how a specific parameter evolved"""
+    print("\n" + "="*70)
+    print(f"PARAMETER EVOLUTION: {param_name}")
+    print("="*70)
+    
+    values = []
+    for s in stats:
+        gen = s['generation']
+        genome = load_genome(f"best_genome_gen{gen}.json")
+        if genome and param_name in genome['genes']:
+            values.append(genome['genes'][param_name])
+        else:
+            values.append(None)
+    
+    if not any(values):
+        print("Parameter not found in genomes.")
+        return
+    
+    # Filter out None values
+    valid_values = [v for v in values if v is not None]
+    min_val = min(valid_values)
+    max_val = max(valid_values)
+    
+    if max_val == min_val:
+        max_val = min_val + 1
+    
+    print(f"\nGen | Value      | Chart")
+    print("-" * 70)
+    
+    for i, val in enumerate(values):
+        if val is None:
+            continue
+        
+        gen = stats[i]['generation']
+        pos = int((val - min_val) / (max_val - min_val) * 40)
+        chart = ' ' * pos + '*'
+        
+        print(f"{gen:3d} | {val:10.2f} | {chart}")
+    
+    print(f"\nRange: {min_val:.2f} to {max_val:.2f} (change: {valid_values[-1] - valid_values[0]:+.2f})")
+
+def main():
+    print("="*70)
+    print("GENETIC ALGORITHM EVOLUTION VISUALIZER")
+    print("="*70)
+    
+    # Load stats
+    stats = load_evolution_stats()
+    if not stats:
+        return
+    
+    print(f"\nLoaded {len(stats)} generations of evolution data")
+    
+    # Show menu
+    while True:
+        print("\n" + "="*70)
+        print("OPTIONS:")
+        print("="*70)
+        print("1. Show fitness progression chart")
+        print("2. Show generation statistics table")
+        print("3. Compare two generations")
+        print("4. Show parameter evolution")
+        print("5. Show all visualizations")
+        print("0. Exit")
+        print("="*70)
+        
+        choice = input("\nEnter choice: ").strip()
+        
+        if choice == '1':
+            print_fitness_chart(stats)
+        
+        elif choice == '2':
+            print_statistics_table(stats)
+        
+        elif choice == '3':
+            try:
+                gen1 = int(input("Enter first generation number: "))
+                gen2 = int(input("Enter second generation number: "))
+                compare_genomes(gen1, gen2)
+            except ValueError:
+                print("Invalid input. Please enter numbers.")
+        
+        elif choice == '4':
+            print("\nAvailable parameters:")
+            genome = load_genome("best_genome_gen1.json")
+            if genome:
+                params = sorted(genome['genes'].keys())
+                for i, p in enumerate(params, 1):
+                    print(f"  {i}. {p}")
+                
+                try:
+                    idx = int(input("\nEnter parameter number: ")) - 1
+                    if 0 <= idx < len(params):
+                        print_parameter_evolution(stats, params[idx])
+                    else:
+                        print("Invalid parameter number.")
+                except ValueError:
+                    print("Invalid input.")
+        
+        elif choice == '5':
+            print_fitness_chart(stats)
+            print_statistics_table(stats)
+            
+            # Compare first and last generation
+            first_gen = stats[0]['generation']
+            last_gen = stats[-1]['generation']
+            compare_genomes(first_gen, last_gen)
+        
+        elif choice == '0':
+            print("\nExiting...")
+            break
+        
+        else:
+            print("Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    main()
+
 
 /include/Bullet.hpp:
 #pragma once
@@ -478,6 +3443,16 @@ public:
     virtual void onMouseMove(SDL_Event &event);
 
     virtual const std::string getStateId() { return "PLAY"; }
+
+    // Public getters for Python bindings
+    const auto& getLayeredGameObjectsMap() const { return layeredGameObjectsMap; }
+    const auto& getPlayerControls() const { return playerControls; }
+    auto& getPlayerControlsMutable() { return playerControls; }
+    
+    // Disable keyboard input for AI-controlled players
+    void disableKeyboardForPlayer(const std::string& playerId) {
+        playerControls.erase(playerId);
+    }
 
 private:
     std::unordered_map<std::string, utils::PlayerControls> playerControls;
@@ -1529,6 +4504,11 @@ void PlayState::updatePlayerInputs() {
     for (auto &[id, gameObject] : layeredGameObjectsMap["player"]) {
         Player *player = dynamic_cast<Player *>(gameObject.get());
         if (player) {
+            // Skip players that don't have keyboard controls (AI-controlled)
+            if (playerControls.find(player->getId()) == playerControls.end()) {
+                continue;
+            }
+            
             utils::PlayerControls &controls = playerControls[player->getId()];
             Player::MovementInput input;
             if (_InputHandler::Instance().isKeyDown(controls.left))
@@ -1630,6 +4610,335 @@ void PlayState::onMouseButtonUp(SDL_Event &event) {
 }
 
 void PlayState::onMouseMove(SDL_Event &event) {
+}
+
+
+/src/python_bindings.cpp:
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/functional.h>
+
+// Undefine Windows/Python macros that conflict with our enums
+#ifdef PLATFORM
+#undef PLATFORM
+#endif
+
+#include "Game.hpp"
+#include "Player.hpp"
+#include "GameObject.hpp"
+#include "Vector2D.hpp"
+#include "PlayState.hpp"
+#include "GameState.hpp"
+#include "Bullet.hpp"
+#include "Platform.hpp"
+#include "MovableObject.hpp"
+
+namespace py = pybind11;
+
+// Helper functions to extract game state data
+py::dict getPlayerState(Player* player) {
+    if (!player) return py::dict();
+    
+    py::dict state;
+    state["id"] = player->getId();
+    state["health"] = player->getHealth();
+    state["lives"] = player->getLives();
+    
+    // Access position through colliderRect
+    auto rect = player->getColliderRect();
+    state["x"] = rect.x;
+    state["y"] = rect.y;
+    state["width"] = rect.w;
+    state["height"] = rect.h;
+    
+    // Velocity is protected - we'll need to add getters or leave it out for now
+    state["velocity_x"] = 0.0f; // TODO: Add getter in MovableObject class
+    state["velocity_y"] = 0.0f; // TODO: Add getter in MovableObject class
+    
+    state["facing_direction"] = static_cast<int>(player->getFacingDirection());
+    
+    state["collider_x"] = rect.x;
+    state["collider_y"] = rect.y;
+    state["collider_w"] = rect.w;
+    state["collider_h"] = rect.h;
+    
+    return state;
+}
+
+py::dict getBulletState(Bullet* bullet) {
+    if (!bullet) return py::dict();
+    
+    py::dict state;
+    state["id"] = bullet->getId();
+    state["owner_id"] = bullet->getPlayerId();
+    
+    auto rect = bullet->getColliderRect();
+    state["x"] = rect.x;
+    state["y"] = rect.y;
+    
+    // Velocity is protected
+    state["velocity_x"] = 0.0f; // TODO: Add getter
+    state["velocity_y"] = 0.0f; // TODO: Add getter
+    
+    auto dir = bullet->getDirection();
+    state["direction_x"] = dir.x;
+    state["direction_y"] = dir.y;
+    
+    state["damage"] = bullet->getDamage();
+    state["knockback"] = bullet->getKnockback();
+    state["expired"] = bullet->isExpired();
+    
+    return state;
+}
+
+py::dict getPlatformState(Platform* platform) {
+    if (!platform) return py::dict();
+    
+    py::dict state;
+    state["id"] = platform->getId();
+    
+    auto rect = platform->getColliderRect();
+    state["x"] = rect.x;
+    state["y"] = rect.y;
+    state["width"] = rect.w;
+    state["height"] = rect.h;
+    
+    state["collider_x"] = rect.x;
+    state["collider_y"] = rect.y;
+    state["collider_w"] = rect.w;
+    state["collider_h"] = rect.h;
+    
+    return state;
+}
+
+// Wrapper class to expose game state
+class GameStateWrapper {
+public:
+    py::dict getAllPlayers() {
+        py::dict players;
+        auto& gsm = _Game::Instance().getGameStateMachine();
+        
+        // Get the current state from the stack
+        auto& states = gsm.getGameStates();
+        if (states.empty()) return players;
+        
+        auto* currentState = dynamic_cast<PlayState*>(states.back());
+        
+        if (currentState) {
+            const auto& objectsMap = currentState->getLayeredGameObjectsMap();
+            auto it = objectsMap.find("player");
+            if (it != objectsMap.end()) {
+                for (const auto& [id, obj] : it->second) {
+                    if (auto* player = dynamic_cast<Player*>(obj.get())) {
+                        players[id.c_str()] = getPlayerState(player);
+                    }
+                }
+            }
+        }
+        
+        return players;
+    }
+    
+    py::dict getAllBullets() {
+        py::dict bullets;
+        auto& gsm = _Game::Instance().getGameStateMachine();
+        auto& states = gsm.getGameStates();
+        if (states.empty()) return bullets;
+        
+        auto* currentState = dynamic_cast<PlayState*>(states.back());
+        
+        if (currentState) {
+            const auto& objectsMap = currentState->getLayeredGameObjectsMap();
+            auto it = objectsMap.find("bullets");
+            if (it != objectsMap.end()) {
+                for (const auto& [id, obj] : it->second) {
+                    if (auto* bullet = dynamic_cast<Bullet*>(obj.get())) {
+                        bullets[id.c_str()] = getBulletState(bullet);
+                    }
+                }
+            }
+        }
+        
+        return bullets;
+    }
+    
+    py::dict getAllPlatforms() {
+        py::dict platforms;
+        auto& gsm = _Game::Instance().getGameStateMachine();
+        auto& states = gsm.getGameStates();
+        if (states.empty()) return platforms;
+        
+        auto* currentState = dynamic_cast<PlayState*>(states.back());
+        
+        if (currentState) {
+            const auto& objectsMap = currentState->getLayeredGameObjectsMap();
+            auto it = objectsMap.find("platforms");
+            if (it != objectsMap.end()) {
+                for (const auto& [id, obj] : it->second) {
+                    if (auto* platform = dynamic_cast<Platform*>(obj.get())) {
+                        platforms[id.c_str()] = getPlatformState(platform);
+                    }
+                }
+            }
+        }
+        
+        return platforms;
+    }
+    
+    py::dict getGameInfo() {
+        py::dict info;
+        auto screenSize = _Game::Instance().getScreenSize();
+        info["screen_width"] = screenSize.width;
+        info["screen_height"] = screenSize.height;
+        info["is_running"] = _Game::Instance().isRunning();
+        return info;
+    }
+};
+
+// Control wrapper to send commands to game
+class GameControlWrapper {
+public:
+    void disableKeyboardForPlayer(const std::string& playerId) {
+        auto& gsm = _Game::Instance().getGameStateMachine();
+        auto& states = gsm.getGameStates();
+        if (states.empty()) return;
+        
+        auto* currentState = dynamic_cast<PlayState*>(states.back());
+        if (currentState) {
+            currentState->disableKeyboardForPlayer(playerId);
+        }
+    }
+    
+    void setPlayerMovement(const std::string& playerId, 
+                          bool up, bool left, bool down, bool right,
+                          bool primaryFire, bool secondaryFire) {
+        auto& gsm = _Game::Instance().getGameStateMachine();
+        auto& states = gsm.getGameStates();
+        if (states.empty()) return;
+        
+        auto* currentState = dynamic_cast<PlayState*>(states.back());
+        
+        if (currentState) {
+            const auto& objectsMap = currentState->getLayeredGameObjectsMap();
+            auto it = objectsMap.find("player");
+            if (it != objectsMap.end()) {
+                auto playerIt = it->second.find(playerId);
+                if (playerIt != it->second.end()) {
+                    if (auto* player = dynamic_cast<Player*>(playerIt->second.get())) {
+                        Player::MovementInput input;
+                        input.up = up;
+                        input.left = left;
+                        input.down = down;
+                        input.right = right;
+                        input.primaryFire = primaryFire;
+                        input.secondaryFire = secondaryFire;
+                        player->setMovement(input);
+                    }
+                }
+            }
+        }
+    }
+    
+    void quitGame() {
+        _Game::Instance().quit();
+    }
+};
+
+// Game initialization and control
+class GameRunner {
+public:
+    bool initGame(const std::string& title = "Gun Mayhem", 
+                  int x = 100, int y = 100, int flags = 0x00000004) { // SDL_WINDOW_RESIZABLE = 0x00000004
+        return _Game::Instance().init(title, x, y, flags);
+    }
+    
+    void handleEvents() {
+        _Game::Instance().handleEvents();
+    }
+    
+    void update(float deltaTime) {
+        _Game::Instance().update(deltaTime);
+    }
+    
+    void render() {
+        _Game::Instance().render();
+    }
+    
+    bool isRunning() {
+        return _Game::Instance().isRunning();
+    }
+    
+    void quit() {
+        _Game::Instance().quit();
+    }
+};
+
+PYBIND11_MODULE(gunmayhem, m) {
+    m.doc() = "Gun Mayhem Python Bindings";
+    
+    // Expose Vector2D
+    py::class_<Vector2D>(m, "Vector2D")
+        .def(py::init<float, float>())
+        .def_readwrite("x", &Vector2D::x)
+        .def_readwrite("y", &Vector2D::y)
+        .def("length", &Vector2D::length);
+    
+    // Expose FacingDirection enum
+    py::enum_<MovableObject::FacingDirection>(m, "FacingDirection")
+        .value("LEFT", MovableObject::FacingDirection::LEFT)
+        .value("RIGHT", MovableObject::FacingDirection::RIGHT);
+    
+    // Expose GameObjectType enum (avoiding PLATFORM macro conflict)
+    py::enum_<GameObject::GameObjectType>(m, "GameObjectType")
+        .value("PLAYER", GameObject::GameObjectType::PLAYER)
+        .value("BULLET", GameObject::GameObjectType::BULLET)
+        .value("PLATFORM", GameObject::GameObjectType::PLATFORM)
+        .value("WEAPON", GameObject::GameObjectType::WEAPON)
+        .value("UNKNOWN", GameObject::GameObjectType::UNKNOWN);
+    
+    // Expose Player::MovementInput
+    py::class_<Player::MovementInput>(m, "MovementInput")
+        .def(py::init<>())
+        .def_readwrite("up", &Player::MovementInput::up)
+        .def_readwrite("left", &Player::MovementInput::left)
+        .def_readwrite("down", &Player::MovementInput::down)
+        .def_readwrite("right", &Player::MovementInput::right)
+        .def_readwrite("primaryFire", &Player::MovementInput::primaryFire)
+        .def_readwrite("secondaryFire", &Player::MovementInput::secondaryFire);
+    
+    // Expose GameStateWrapper
+    py::class_<GameStateWrapper>(m, "GameState")
+        .def(py::init<>())
+        .def("get_all_players", &GameStateWrapper::getAllPlayers)
+        .def("get_all_bullets", &GameStateWrapper::getAllBullets)
+        .def("get_all_platforms", &GameStateWrapper::getAllPlatforms)
+        .def("get_game_info", &GameStateWrapper::getGameInfo);
+    
+    // Expose GameControlWrapper
+    py::class_<GameControlWrapper>(m, "GameControl")
+        .def(py::init<>())
+        .def("disable_keyboard_for_player", &GameControlWrapper::disableKeyboardForPlayer)
+        .def("set_player_movement", &GameControlWrapper::setPlayerMovement)
+        .def("quit_game", &GameControlWrapper::quitGame);
+    
+    // Expose GameRunner - allows Python to control the game loop
+    py::class_<GameRunner>(m, "GameRunner")
+        .def(py::init<>())
+        .def("init_game", &GameRunner::initGame, 
+             py::arg("title") = "Gun Mayhem",
+             py::arg("x") = 100,
+             py::arg("y") = 100,
+             py::arg("flags") = 0x00000004)
+        .def("handle_events", &GameRunner::handleEvents)
+        .def("update", &GameRunner::update)
+        .def("render", &GameRunner::render)
+        .def("is_running", &GameRunner::isRunning)
+        .def("quit", &GameRunner::quit);
+    
+    // Helper functions
+    m.def("get_player_state", &getPlayerState, "Get player state as dictionary");
+    m.def("get_bullet_state", &getBulletState, "Get bullet state as dictionary");
+    m.def("get_platform_state", &getPlatformState, "Get platform state as dictionary");
 }
 
 
