@@ -37,7 +37,7 @@ def write_file_contents(root_dir, sub_dirs, root_files=None, output_file="out.tx
                     out_file.write("\n\n")
 
 # Example usage
-root = "C:/Users/jayad/Desktop/PROJECTS/Gun-Mayhem"
+root = "D:\Amrita\Amrita Sem-V\ci\project\github\Gun-Mayhem"
 dirs = ["/include", "/src"]
-files = ["main.cpp"]  # files at root to include
+files = ['build_python_module.bat', 'CMakeLists.txt', 'CMakeLists_pybind.txt', 'evolvable_fuzzy_ai.py', 'fuzzy_ai.py', 'fuzzy_genome.py', 'ga_nn_trainer.py', 'ga_trainer.py', 'main.cpp', 'monitor_game.py', 'neural_ai.py', 'neural_genome.py', 'play_fuzzy_vs_nn.py', 'play_vs_ai.py', 'play_vs_evolved_ai.py', 'play_vs_evolved_nn.py', 'run.bat', 'test_headless.py', 'visualize_evolution.py'] # ["main.cpp"]  # files at root to include
 write_file_contents(root, dirs, files)
