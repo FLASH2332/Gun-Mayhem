@@ -7,7 +7,7 @@ Neural AI controller using a fixed-topology feed-forward network evolved via GA.
 from __future__ import annotations
 import math
 from typing import Dict, List
-from neural_genome import (
+from ga.neural_genome import (
     NeuralGenome, INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE,
     W1_SIZE, B1_SIZE, W2_SIZE, B2_SIZE
 )

@@ -8,6 +8,11 @@ import os
 import sys
 import time
 
+# Ensure project root is on sys.path when running from this subfolder
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 # Add DLL paths
 dll_paths = [
     r"C:\mingw64\bin",
@@ -22,15 +27,14 @@ if sys.version_info >= (3, 8):
             os.add_dll_directory(path)
 
 import gunmayhem
-from fuzzy_genome import FuzzyGenome
-from evolvable_fuzzy_ai import EvolvableFuzzyAI
-from neural_genome import NeuralGenome
-from neural_ai import NeuralAI
+from ga.fuzzy_genome import FuzzyGenome
+from fuzzy.evolvable_fuzzy_ai import EvolvableFuzzyAI
+from ga.neural_genome import NeuralGenome
+from nn.neural_ai import NeuralAI
 
 
 def main():
-    project_root = os.path.dirname(os.path.abspath(__file__))
-    build_dir = os.path.join(project_root, 'build')
+    build_dir = os.path.join(PROJECT_ROOT, 'build')
     os.makedirs(build_dir, exist_ok=True)
     os.chdir(build_dir)
 

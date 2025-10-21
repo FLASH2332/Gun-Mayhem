@@ -20,6 +20,11 @@ if sys.version_info >= (3, 8):
         if os.path.exists(path):
             os.add_dll_directory(path)
 
+# Ensure project root on path when running this module directly
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 import gunmayhem
 
 def main():

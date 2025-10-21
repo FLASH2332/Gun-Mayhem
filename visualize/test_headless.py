@@ -18,8 +18,13 @@ if sys.version_info >= (3, 8):
         if os.path.exists(path):
             os.add_dll_directory(path)
 
-from fuzzy_genome import FuzzyGenome
-from ga_trainer import GeneticTrainer
+# Ensure project root on path when running this module directly
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+from ga.fuzzy_genome import FuzzyGenome
+from ga.ga_trainer import GeneticTrainer
 
 def main():
     print("="*70)

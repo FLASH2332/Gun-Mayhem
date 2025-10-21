@@ -8,6 +8,11 @@ import os
 import sys
 import time
 
+# Ensure project root is on sys.path when running from this subfolder
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 # Add DLL paths
 dll_paths = [
     r"C:\mingw64\bin",
@@ -22,13 +27,12 @@ if sys.version_info >= (3, 8):
             os.add_dll_directory(path)
 
 import gunmayhem
-from fuzzy_ai import FuzzyAI, SimpleFuzzyAI, FUZZY_AVAILABLE
+from fuzzy.fuzzy_ai import FuzzyAI, SimpleFuzzyAI, FUZZY_AVAILABLE
 
 
 def main():
-    # Change to build directory
-    project_root = os.path.dirname(os.path.abspath(__file__))
-    build_dir = os.path.join(project_root, 'build')
+    # Change to build directory at repo root so ../assets resolves correctly
+    build_dir = os.path.join(PROJECT_ROOT, 'build')
     if not os.path.exists(build_dir):
         os.makedirs(build_dir)
     os.chdir(build_dir)

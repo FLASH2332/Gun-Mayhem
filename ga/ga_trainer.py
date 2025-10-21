@@ -29,6 +29,11 @@ if sys.version_info >= (3, 8):
         if os.path.exists(path):
             os.add_dll_directory(path)
 
+# Ensure project root on path when running this module directly
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 import gunmayhem
 from ga.fuzzy_genome import FuzzyGenome
 from fuzzy.evolvable_fuzzy_ai import EvolvableFuzzyAI
@@ -104,9 +109,8 @@ class GeneticTrainer:
             This is unavoidable without modifying the C++ game engine.
             The window will be mostly invisible and performance is still good.
         """
-        # Change to build directory
-        project_root = os.path.dirname(os.path.abspath(__file__))
-        build_dir = os.path.join(project_root, 'build')
+        # Change to build directory at repo root so ../assets resolves correctly
+        build_dir = os.path.join(PROJECT_ROOT, 'build')
         if not os.path.exists(build_dir):
             os.makedirs(build_dir)
         original_dir = os.getcwd()
@@ -482,10 +486,10 @@ def main():
     print("="*70)
     
     # Configuration
-    POPULATION_SIZE = 5
+    POPULATION_SIZE = 3
     ELITE_SIZE = 2
-    NUM_GENERATIONS = 5
-    TOURNAMENT_SIZE = 3  # Each bot fights only 2 opponents per generation
+    NUM_GENERATIONS = 2
+    TOURNAMENT_SIZE = 1  # Each bot fights only 2 opponents per generation
 
     print(f"\nConfiguration:")
     print(f"  Population: {POPULATION_SIZE} bots")

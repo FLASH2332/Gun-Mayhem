@@ -11,8 +11,8 @@ import sys
 import os
 
 # Import the original fuzzy AI
-from fuzzy_ai import FuzzyAI, SimpleFuzzyAI, FUZZY_AVAILABLE
-from fuzzy_genome import FuzzyGenome
+from fuzzy.fuzzy_ai import FuzzyAI, SimpleFuzzyAI, FUZZY_AVAILABLE
+from ga.fuzzy_genome import FuzzyGenome
 
 if FUZZY_AVAILABLE:
     import numpy as np
@@ -287,6 +287,32 @@ class EvolvableFuzzyAI:
         # Movement
         move_left = nav_left
         move_right = nav_right
+
+        # Spacing: avoid "shadow tracking" by keeping a preferred stand-off distance
+        # Use genome parameter aggressive_distance as the target spacing on the same level
+        try:
+            dx = enemy_state['x'] - ai_state['x']
+            dy = enemy_state['y'] - ai_state['y']
+            dist = abs(dx)
+            same_level = abs(dy) < 60  # roughly same platform
+            target = float(g.get('aggressive_distance', 250.0))
+            deadband = 40.0  # do nothing within this band to avoid oscillation
+
+            if same_level:
+                if dist < (target - deadband):
+                    # Too close: back off to create space
+                    move_left = dx < 0   # enemy left -> move further left
+                    move_right = dx > 0  # enemy right -> move further right
+                elif dist <= (target + deadband):
+                    # Within comfort zone: avoid micro-tracking horizontally
+                    move_left = False
+                    move_right = False
+                else:
+                    # Farther than desired: keep approaching (nav result already does this)
+                    pass
+        except Exception:
+            # If anything unexpected, fall back to nav behavior without spacing
+            pass
         
         # Combat using evolved parameters
         can_shoot = abs(height_diff) < g['shoot_height_diff_max'] and distance < g['shoot_distance_max']

@@ -22,6 +22,11 @@ if sys.version_info >= (3, 8):
         if os.path.exists(path):
             os.add_dll_directory(path)
 
+# Ensure project root on path when running this module directly
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 import gunmayhem
 from ga.neural_genome import NeuralGenome
 from nn.neural_ai import NeuralAI
@@ -48,9 +53,8 @@ class NeuralGATrainer:
         self.population = [NeuralGenome() for _ in range(self.population_size)]
 
     def _play_match(self, g1: NeuralGenome, g2: NeuralGenome, max_frames=1800, headless=True) -> Tuple[str, dict]:
-        # Change to build directory
-        project_root = os.path.dirname(os.path.abspath(__file__))
-        build_dir = os.path.join(project_root, 'build')
+        # Change to build directory at repo root so ../assets resolves correctly
+        build_dir = os.path.join(PROJECT_ROOT, 'build')
         os.makedirs(build_dir, exist_ok=True)
         original_dir = os.getcwd()
         os.chdir(build_dir)
