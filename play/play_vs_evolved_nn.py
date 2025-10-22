@@ -84,6 +84,7 @@ def main():
             )
         game.update(0.0166)
         game.render()
+        time.sleep(0.0166)  # Slow down to approx real-time
         frame += 1
     print("\nGame ended!")
 

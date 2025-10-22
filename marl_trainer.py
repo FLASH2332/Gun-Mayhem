@@ -12,8 +12,8 @@ from stable_baselines3.common.callbacks import CheckpointCallback
 from marl_environment import GunMayhemEnv
 
 # --- Configuration ---
-TOTAL_TIMESTEPS = 1_000_000  # Total steps to train for
-STEPS_PER_UPDATE = 50_000    # Steps to train before updating the opponent
+TOTAL_TIMESTEPS = 2_000_000  # Total steps to train for
+STEPS_PER_UPDATE = 100_000    # Steps to train before updating the opponent
 MODEL_NAME = "ppo_gunmayhem_marl"
 LOG_DIR = "logs_marl"
 MODEL_DIR = "models_marl"

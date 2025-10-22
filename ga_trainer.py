@@ -482,10 +482,10 @@ def main():
     print("="*70)
     
     # Configuration
-    POPULATION_SIZE = 5
-    ELITE_SIZE = 2
-    NUM_GENERATIONS = 5
-    TOURNAMENT_SIZE = 3  # Each bot fights only 2 opponents per generation
+    POPULATION_SIZE = 25
+    ELITE_SIZE = 5
+    NUM_GENERATIONS = 25
+    TOURNAMENT_SIZE = 5  # Each bot fights only 2 opponents per generation
 
     print(f"\nConfiguration:")
     print(f"  Population: {POPULATION_SIZE} bots")

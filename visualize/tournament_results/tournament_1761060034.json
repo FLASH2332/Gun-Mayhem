@@ -1,0 +1,212 @@
+{
+  "timestamp": "2025-10-21T20:47:35",
+  "matches_per_pair": 5,
+  "pairs": [
+    {
+      "pair": "fuzzy_vs_fuzzy_ga",
+      "p1": "fuzzy",
+      "p2": "fuzzy_ga",
+      "results": [
+        {
+          "match": 1,
+          "winner": "draw",
+          "stats": {
+            "frames": 1200,
+            "avg_distance": 74.22554203675473,
+            "p1_health": 40.0,
+            "p2_health": 10.0,
+            "p1_lives": 8.0,
+            "p2_lives": 8.0
+          }
+        },
+        {
+          "match": 2,
+          "winner": "draw",
+          "stats": {
+            "frames": 1200,
+            "avg_distance": 65.88184836946238,
+            "p1_health": 60.0,
+            "p2_health": 70.0,
+            "p1_lives": 8.0,
+            "p2_lives": 8.0
+          }
+        },
+        {
+          "match": 3,
+          "winner": "draw",
+          "stats": {
+            "frames": 1200,
+            "avg_distance": 74.22554203675473,
+            "p1_health": 40.0,
+            "p2_health": 10.0,
+            "p1_lives": 8.0,
+            "p2_lives": 8.0
+          }
+        },
+        {
+          "match": 4,
+          "winner": "draw",
+          "stats": {
+            "frames": 1200,
+            "avg_distance": 65.69168811524186,
+            "p1_health": 100.0,
+            "p2_health": 20.0,
+            "p1_lives": 8.0,
+            "p2_lives": 9.0
+          }
+        },
+        {
+          "match": 5,
+          "winner": "draw",
+          "stats": {
+            "frames": 1200,
+            "avg_distance": 74.22554203675473,
+            "p1_health": 40.0,
+            "p2_health": 10.0,
+            "p1_lives": 8.0,
+            "p2_lives": 8.0
+          }
+        }
+      ],
+      "summary": {
+        "p1_wins": 0,
+        "p2_wins": 0,
+        "draws": 5
+      }
+    },
+    {
+      "pair": "fuzzy_vs_marl",
+      "p1": "fuzzy",
+      "p2": "marl",
+      "results": [
+        {
+          "match": 1,
+          "winner": "ai1",
+          "stats": {
+            "frames": 1096,
+            "p1_health": 100.0,
+            "p2_health": 100.0,
+            "p1_lives": 8.0,
+            "p2_lives": 0.0
+          }
+        },
+        {
+          "match": 2,
+          "winner": "ai1",
+          "stats": {
+            "frames": 1101,
+            "p1_health": 100.0,
+            "p2_health": 100.0,
+            "p1_lives": 0.0,
+            "p2_lives": 9.0
+          }
+        },
+        {
+          "match": 3,
+          "winner": "ai1",
+          "stats": {
+            "frames": 1096,
+            "p1_health": 100.0,
+            "p2_health": 100.0,
+            "p1_lives": 8.0,
+            "p2_lives": 0.0
+          }
+        },
+        {
+          "match": 4,
+          "winner": "ai1",
+          "stats": {
+            "frames": 1101,
+            "p1_health": 100.0,
+            "p2_health": 100.0,
+            "p1_lives": 0.0,
+            "p2_lives": 9.0
+          }
+        },
+        {
+          "match": 5,
+          "winner": "ai1",
+          "stats": {
+            "frames": 1096,
+            "p1_health": 100.0,
+            "p2_health": 100.0,
+            "p1_lives": 8.0,
+            "p2_lives": 0.0
+          }
+        }
+      ],
+      "summary": {
+        "p1_wins": 5,
+        "p2_wins": 0,
+        "draws": 0
+      }
+    },
+    {
+      "pair": "fuzzy_ga_vs_marl",
+      "p1": "fuzzy_ga",
+      "p2": "marl",
+      "results": [
+        {
+          "match": 1,
+          "winner": "ai1",
+          "stats": {
+            "frames": 992,
+            "p1_health": 100.0,
+            "p2_health": 100.0,
+            "p1_lives": 10.0,
+            "p2_lives": 0.0
+          }
+        },
+        {
+          "match": 2,
+          "winner": "ai1",
+          "stats": {
+            "frames": 1134,
+            "p1_health": 100.0,
+            "p2_health": 100.0,
+            "p1_lives": 0.0,
+            "p2_lives": 8.0
+          }
+        },
+        {
+          "match": 3,
+          "winner": "ai1",
+          "stats": {
+            "frames": 992,
+            "p1_health": 100.0,
+            "p2_health": 100.0,
+            "p1_lives": 10.0,
+            "p2_lives": 0.0
+          }
+        },
+        {
+          "match": 4,
+          "winner": "ai1",
+          "stats": {
+            "frames": 1134,
+            "p1_health": 100.0,
+            "p2_health": 100.0,
+            "p1_lives": 0.0,
+            "p2_lives": 8.0
+          }
+        },
+        {
+          "match": 5,
+          "winner": "ai1",
+          "stats": {
+            "frames": 992,
+            "p1_health": 100.0,
+            "p2_health": 100.0,
+            "p1_lives": 10.0,
+            "p2_lives": 0.0
+          }
+        }
+      ],
+      "summary": {
+        "p1_wins": 5,
+        "p2_wins": 0,
+        "draws": 0
+      }
+    }
+  ]
+}

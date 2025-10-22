@@ -1,7 +1,7 @@
 """
-Gun Mayhem with Fuzzy AI
-- Player 1: Human controlled (WASD + Space to shoot)
-- Player 2: AI controlled with fuzzy logic
+Gun Mayhem - Fuzzy vs Fuzzy
+- Player 1: Fuzzy AI
+- Player 2: Fuzzy AI
 """
 
 import os
@@ -38,16 +38,16 @@ def main():
     os.chdir(build_dir)
     
     print("=" * 60)
-    print("GUN MAYHEM - Human vs Fuzzy AI")
+    print("GUN MAYHEM - Fuzzy vs Fuzzy")
     print("=" * 60)
-    print("Player 1: YOU (Controlled by keyboard in game)")
-    print("Player 2: FUZZY AI (Controlled by Python)")
+    print("Player 1: Fuzzy AI")
+    print("Player 2: Fuzzy AI")
     print()
-    print("Starting game...")
+    print("Starting match...")
     
     # Initialize game
     game = gunmayhem.GameRunner()
-    if not game.init_game("Gun Mayhem - Human vs AI"):
+    if not game.init_game("Gun Mayhem - Fuzzy vs Fuzzy"):
         print("Failed to initialize game!")
         return
     
@@ -55,16 +55,17 @@ def main():
     game_state = gunmayhem.GameState()
     game_control = gunmayhem.GameControl()
     
-    # Initialize AI
-    ai = FuzzyAI() if FUZZY_AVAILABLE else SimpleFuzzyAI()
+    # Initialize separate AI instances (avoid shared jump/hold state)
+    ai1 = FuzzyAI() if FUZZY_AVAILABLE else SimpleFuzzyAI()
+    ai2 = FuzzyAI() if FUZZY_AVAILABLE else SimpleFuzzyAI()
     
     frame_count = 0
     last_print = time.time()
     
-    print("Game running! Play with the keyboard, AI will control Player 2")
+    print("Game running! Both players are AI-controlled.")
     
-    # Flag to track if we've disabled keyboard for AI player
-    ai_keyboard_disabled = False
+    # Disable keyboard for both AI players once
+    kb_disabled = False
     
     # Game loop
     while game.is_running():
@@ -77,11 +78,12 @@ def main():
         if len(players) >= 2:
             player_ids = list(players.keys())
             
-            # Disable keyboard for AI player (only once)
-            if not ai_keyboard_disabled:
+            # Disable keyboard for both AI players (only once)
+            if not kb_disabled:
+                game_control.disable_keyboard_for_player(player_ids[0])
                 game_control.disable_keyboard_for_player(player_ids[1])
-                ai_keyboard_disabled = True
-                print(f"AI taking control of {player_ids[1]}")
+                kb_disabled = True
+                print(f"Fuzzy AIs taking control of {player_ids[0]} and {player_ids[1]}")
             
             # Assume player1 is human, player2 is AI
             # You can adjust this based on actual player IDs
@@ -89,8 +91,15 @@ def main():
                 player1_state = players[player_ids[0]]
                 player2_state = players[player_ids[1]]
                 
-                # AI decides actions
-                ai_actions = ai.decide_action(player2_state, player1_state)
+                # Win checks
+                if player1_state['lives'] <= 0 or player2_state['lives'] <= 0:
+                    winner = 'AI 2 (P2)' if player1_state['lives'] <= 0 else 'AI 1 (P1)'
+                    print(f"\nWinner: {winner}")
+                    break
+
+                # AI decides actions (separate instances for each player)
+                ai_actions1 = ai1.decide_action(player1_state, player2_state)
+                ai_actions2 = ai2.decide_action(player2_state, player1_state)
                 
                 # Enhanced debug output
                 if frame_count % 60 == 0:  # Every second at 60 FPS
@@ -102,20 +111,34 @@ def main():
                     human_level = 'TOP' if abs(player1_state['y'] - 300) < 100 else 'BOTTOM'
                     
                     print(f"\n[AI DECISION] Frame {frame_count}")
-                    print(f"  Levels: AI={ai_level} ({player2_state['y']:.0f}), Human={human_level} ({player1_state['y']:.0f})")
+                    print(f"  Levels: AI2={ai_level} ({player2_state['y']:.0f}), AI1={human_level} ({player1_state['y']:.0f})")
                     print(f"  Distance: {distance:.0f}px, Height Diff: {height_diff:.0f}px")
-                    print(f"  Actions: Jump={ai_actions['up']}, Left={ai_actions['left']}, Right={ai_actions['right']}, Shoot={ai_actions['primaryFire']}")
+                    print(f"  AI1 Actions: Jump={ai_actions1['up']}, Left={ai_actions1['left']}, Right={ai_actions1['right']}, Shoot={ai_actions1['primaryFire']}")
+                    print(f"  AI2 Actions: Jump={ai_actions2['up']}, Left={ai_actions2['left']}, Right={ai_actions2['right']}, Shoot={ai_actions2['primaryFire']}")
                 
-                # Send AI controls to player 2 (must use positional arguments)
+                # Send AI1 controls to player 1 (positional arguments required)
                 game_control.set_player_movement(
-                    player_ids[1],                          # player ID
-                    bool(ai_actions['up']),                 # up
-                    bool(ai_actions['left']),               # left
-                    bool(ai_actions['down']),               # down
-                    bool(ai_actions['right']),              # right
-                    bool(ai_actions['primaryFire']),        # primaryFire
-                    bool(ai_actions['secondaryFire'])       # secondaryFire
+                    player_ids[0],
+                    bool(ai_actions1['up']),
+                    bool(ai_actions1['left']),
+                    bool(ai_actions1['down']),
+                    bool(ai_actions1['right']),
+                    bool(ai_actions1['primaryFire']),
+                    bool(ai_actions1['secondaryFire'])
                 )
+
+                # Send AI2 controls to player 2 (positional arguments required)
+                game_control.set_player_movement(
+                    player_ids[1],
+                    bool(ai_actions2['up']),
+                    bool(ai_actions2['left']),
+                    bool(ai_actions2['down']),
+                    bool(ai_actions2['right']),
+                    bool(ai_actions2['primaryFire']),
+                    bool(ai_actions2['secondaryFire'])
+                )
+
+
         
         # Update and render
         game.update(0.0166)
@@ -128,9 +151,9 @@ def main():
             
             print(f"\n[GAME STATE] Frame {frame_count}")
             print(f"  Players: {len(players)}, Bullets: {len(bullets)}")
-            for player_id, p in players.items():
-                player_type = "HUMAN" if player_id == list(players.keys())[0] else "AI   "
-                print(f"  [{player_type}] {player_id}: HP={p['health']:5.1f}, Lives={p['lives']}, Pos=({p['x']:6.1f}, {p['y']:6.1f})")
+            for idx, (player_id, p) in enumerate(players.items()):
+                label = "AI1" if idx == 0 else "AI2"
+                print(f"  [{label}] {player_id}: HP={p['health']:5.1f}, Lives={p['lives']}, Pos=({p['x']:6.1f}, {p['y']:6.1f})")
             
             last_print = time.time()
         

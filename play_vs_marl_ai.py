@@ -7,7 +7,11 @@ import os
 import sys
 import time
 import numpy as np
-import gym
+
+# Ensure project root is on sys.path when running this script
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
 # Add DLL paths
 dll_paths = [
@@ -23,11 +27,12 @@ if sys.version_info >= (3, 8):
 
 import gunmayhem
 from stable_baselines3 import PPO
-from feature_extraction import get_observation # Use the same feature extractor
+from feature_extraction import get_observation  # Use the same feature extractor
 
-MODEL_PATH = "models_marl/ppo_gunmayhem_marl.zip"
+# Use absolute path so changing into build/ doesn't break model loading
+MODEL_PATH = os.path.join(PROJECT_ROOT, "models_marl", "ppo_gunmayhem_marl")
 
-def _convert_action(action_array) -> Dict:
+def _convert_action(action_array) -> dict:
     """Converts MultiBinary array [0,1,0,1,1,0] to action dict."""
     return {
         'up': bool(action_array[0]),
@@ -39,8 +44,7 @@ def _convert_action(action_array) -> Dict:
     }
 
 def main():
-    project_root = os.path.dirname(os.path.abspath(__file__))
-    build_dir = os.path.join(project_root, 'build')
+    build_dir = os.path.join(PROJECT_ROOT, 'build')
     os.makedirs(build_dir, exist_ok=True)
     os.chdir(build_dir)
 
@@ -106,9 +110,17 @@ def main():
                 # 2. Predict action
                 action_p2_array, _ = model.predict(obs_p2, deterministic=True)
                 
-                # 3. Convert and apply action
+                # 3. Convert and apply action (positional args only; pybind method doesn't accept kwargs)
                 action_p2_dict = _convert_action(action_p2_array)
-                game_control.set_player_movement(p2_id, **action_p2_dict)
+                game_control.set_player_movement(
+                    p2_id,
+                    bool(action_p2_dict['up']),
+                    bool(action_p2_dict['left']),
+                    bool(action_p2_dict['down']),
+                    bool(action_p2_dict['right']),
+                    bool(action_p2_dict['primaryFire']),
+                    bool(action_p2_dict['secondaryFire'])
+                )
 
             # Update and render
             game.update(0.0166)
